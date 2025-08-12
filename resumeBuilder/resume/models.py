@@ -99,3 +99,13 @@ class OtherSkill(models.Model):
     
     def __str__(self):
         return self.skill
+    
+    
+class Project(models.Model):
+    resume = models.ForeignKey(Resume, related_name='projects', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    link = models.URLField(blank=True, null=True)  # Optional: project URL like GitHub or live site
+
+    def __str__(self):
+        return self.title

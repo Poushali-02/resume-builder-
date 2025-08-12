@@ -8,6 +8,7 @@ class Profile(models.Model):
     bio = models.TextField(blank=True, null=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     resumeCount = models.PositiveIntegerField(default=0)
+    portfolio_link = models.URLField(blank=True, null=True)
     
     def __str__(self):
         return self.user.username

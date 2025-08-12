@@ -37,6 +37,7 @@ def edit_profile(request, username):
     if request.method == "POST":
         profile.pfp = request.FILES.get("pfp", profile.pfp)
         profile.bio = request.POST.get("bio")
+        profile.portfolio_link = request.POST.get('portfolio_link', profile.portfolio_link)
         profile.save()
         return redirect('profile')
     return render(request, 'users/edit_profile.html', {'profile': profile})

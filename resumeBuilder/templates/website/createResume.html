@@ -233,6 +233,35 @@
           </div>
         </div>
         
+        <!-- Projects -->
+        <div class="mt-6 space-y-4">
+          <h4 class="font-medium">Projects</h4>
+          <div id="projects-container">
+            <div class="project-entry mb-6 p-4 border rounded bg-gray-50">
+              <div class="space-y-3">
+                <div>
+                  <label class="block mb-1 text-700">Project Title</label>
+                  <input type="text" name="project_title[]" placeholder="e.g. E-commerce Website" class="w-full border px-3 py-2 rounded shadow-sm">
+                </div>
+                <div>
+                  <label class="block mb-1 text-700">Description</label>
+                  <textarea name="project_description[]" rows="3" placeholder="Describe your project, technologies used, and achievements" class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
+                </div>
+                <div>
+                  <label class="block mb-1 text-700">Project URL (Optional)</label>
+                  <input type="url" name="project_link[]" placeholder="https://github.com/yourproject or https://yourproject.com" class="w-full border px-3 py-2 rounded shadow-sm">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="add-project-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add Another Project
+          </button>
+        </div>
+
         <!-- Other Skills -->
         <div class="mt-6 space-y-4">
           <h4 class="font-medium">Other Skills</h4>
@@ -487,6 +516,32 @@
       <input type="text" name="other_skill[]" placeholder="Other skill" class="w-full border px-3 py-2 rounded shadow-sm">
     `;
     otherSkillsContainer.appendChild(otherSkillEntry);
+  });
+
+  // Projects
+  const projectsContainer = document.getElementById('projects-container');
+  const addProjectBtn = document.getElementById('add-project-btn');
+
+  addProjectBtn.addEventListener('click', () => {
+    const projectEntry = document.createElement('div');
+    projectEntry.className = 'project-entry mb-6 p-4 border rounded bg-gray-50';
+    projectEntry.innerHTML = `
+      <div class="space-y-3">
+        <div>
+          <label class="block mb-1 text-700">Project Title</label>
+          <input type="text" name="project_title[]" placeholder="e.g. E-commerce Website" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+        <div>
+          <label class="block mb-1 text-700">Description</label>
+          <textarea name="project_description[]" rows="3" placeholder="Describe your project, technologies used, and achievements" class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
+        </div>
+        <div>
+          <label class="block mb-1 text-700">Project URL (Optional)</label>
+          <input type="url" name="project_link[]" placeholder="https://github.com/yourproject or https://yourproject.com" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+      </div>
+    `;
+    projectsContainer.appendChild(projectEntry);
   });
 
   showStep(currentStep);
