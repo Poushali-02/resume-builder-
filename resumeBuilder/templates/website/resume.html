@@ -8,7 +8,7 @@
     
     <!-- Header Section with Profile Image -->
     <div class="flex p-6 border-b">
-      {% if resume.image %}
+      {% if resume.image.url %}
       <div class="mr-6">
         <img src="{{ resume.image.url }}" alt="{{ resume.full_name }}" class="h-24 w-24 rounded-full border-2 border-gray-300">
       </div>
@@ -37,18 +37,31 @@
             <span class="mr-2">•</span> WORK EXPERIENCE
           </h2>
           
-          {% if resume.experience %}
           <div class="ml-6 space-y-4">
-            {% for exp in resume.experience.splitlines %}
-              {% if exp.strip %}
+            {% if resume.experiences.all %}
+              {% for exp in resume.experiences.all %}
               <div class="mb-4">
-                <div class="font-bold text-gray-800">{{ exp|truncatewords:2 }}</div>
-                <div class="text-sm text-gray-600">{{ exp|slice:"15:" }}</div>
+                <div class="font-bold text-gray-800">{{ exp.job_title }} at {{ exp.company }}</div>
+                <div class="text-sm text-gray-600 mb-1">
+                  {{ exp.start_date|date:"M Y" }} - 
+                  {% if exp.is_current %}
+                    Present
+                  {% else %}
+                    {{ exp.end_date|date:"M Y" }}
+                  {% endif %}
+                  {% if exp.location %}
+                  <span class="ml-2">• {{ exp.location }}</span>
+                  {% endif %}
+                </div>
+                {% if exp.description %}
+                <div class="text-sm">{{ exp.description|linebreaks }}</div>
+                {% endif %}
               </div>
-              {% endif %}
-            {% endfor %}
+              {% endfor %}
+            {% else %}
+              <div class="text-gray-500 italic">No work experience listed</div>
+            {% endif %}
           </div>
-          {% endif %}
         </section>
         
         <!-- Education -->
@@ -59,37 +72,53 @@
           
           <div class="ml-6 space-y-4">
             {% if resume.educations.all %}
-            {% for edu in resume.educations.all %}
-            <div class="mb-4">
-              <div class="font-bold uppercase text-gray-800">{{ edu.institution }}</div>
-              <div class="text-sm text-gray-600">{{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y" }}</div>
-              <div class="text-sm">{{ edu.degree }}</div>
-            </div>
-            {% endfor %}
+              {% for edu in resume.educations.all %}
+              <div class="mb-4">
+                <div class="font-bold uppercase text-gray-800">{{ edu.institution }}</div>
+                <div class="text-sm text-gray-600 mb-1">
+                  {{ edu.start_date|date:"M Y" }} - 
+                  {% if edu.is_current %}
+                    Present
+                  {% else %}
+                    {{ edu.end_date|date:"M Y" }}
+                  {% endif %}
+                  {% if edu.location %}
+                  <span class="ml-2">• {{ edu.location }}</span>
+                  {% endif %}
+                </div>
+                <div class="text-sm font-medium">{{ edu.degree }}</div>
+                {% if edu.description %}
+                <div class="text-sm mt-1">{{ edu.description }}</div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-gray-500 italic">No education listed</div>
             {% endif %}
           </div>
         </section>
         
-        <!-- Language -->
+        <!-- Language Skills -->
         <section class="mb-8">
           <h2 class="font-bold uppercase text-black mb-4 flex items-center">
-            <span class="mr-2">•</span> LANGUAGE
+            <span class="mr-2">•</span> LANGUAGE SKILLS
           </h2>
           
-          {% if resume.languages %}
           <div class="ml-6">
-            {% for language in resume.languages.split %}
-              {% if language.strip %}
+            {% if resume.language_skills.all %}
+              {% for lang in resume.language_skills.all %}
               <div class="mb-2">
-                <div class="text-gray-800">{{ language.strip }}</div>
+                <div class="text-gray-800">{{ lang.language }}</div>
                 <div class="h-1.5 w-36 bg-gray-300 mt-1">
-                  <div class="h-full bg-black w-3/4"></div>
+                  <div class="h-full bg-black {% if lang.level == 'Basic' %}w-1/4{% elif lang.level == 'Intermediate' %}w-1/2{% elif lang.level == 'Fluent' %}w-3/4{% else %}w-full{% endif %}"></div>
                 </div>
+                <div class="text-xs text-gray-500 mt-0.5">{{ lang.level }}</div>
               </div>
-              {% endif %}
-            {% endfor %}
+              {% endfor %}
+            {% else %}
+              <div class="text-gray-500 italic">No languages listed</div>
+            {% endif %}
           </div>
-          {% endif %}
         </section>
         
         <!-- Programming Skills -->
@@ -98,19 +127,39 @@
             <span class="mr-2">•</span> PROGRAMMING SKILLS
           </h2>
           
-          {% if resume.skills_list.all %}
           <div class="ml-6">
-            {% for skill in resume.skills_list.all %}
-            <div class="mb-1">
-              <div class="text-gray-800">• {{ skill.skill_type }}</div>
-              {% if skill.skill_description %}
-              <div class="text-sm text-gray-600 ml-3">{{ skill.skill_description }}</div>
-              {% endif %}
-            </div>
-            {% endfor %}
+            {% if resume.programming_skills.all %}
+              {% for skill in resume.programming_skills.all %}
+              <div class="mb-2">
+                <div class="text-gray-800">{{ skill.skill_name }}</div>
+                <div class="h-1.5 w-36 bg-gray-300 mt-1">
+                  <div class="h-full bg-black {% if skill.level == 'Beginner' %}w-1/4{% elif skill.level == 'Intermediate' %}w-1/2{% elif skill.level == 'Advanced' %}w-3/4{% else %}w-full{% endif %}"></div>
+                </div>
+                <div class="text-xs text-gray-500 mt-0.5">{{ skill.level }}</div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-gray-500 italic">No programming skills listed</div>
+            {% endif %}
           </div>
-          {% endif %}
         </section>
+        
+        <!-- Other Skills -->
+        {% if resume.other_skills.all %}
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> OTHER SKILLS
+            </h2>
+          
+          <div class="ml-6">
+              <ul class="list-disc list-inside space-y-1">
+                {% for skill in resume.other_skills.all %}
+                <li class="text-gray-800">{{ skill.skill }}</li>
+                {% endfor %}
+              </ul>
+          </div>
+        </section>
+        {% endif %}
       </div>
       
       <!-- Right Section -->
@@ -119,16 +168,12 @@
         <section class="mb-8 bg-gray-700 text-white p-4">
           <h2 class="font-bold uppercase text-center mb-4">ABOUT ME</h2>
           
-          {% if resume.about %}
-          <p class="text-sm">{{ resume.about }}</p>
+          {% if resume.summary %}
+          <p class="text-sm">{{ resume.summary|linebreaks }}</p>
           {% else %}
           <p class="text-sm">
-            {% if resume.summary %}
-            {{ resume.summary }}
-            {% else %}
             Computer Science Engineering student
             Currently at 2<sup>nd</sup> year
-            {% endif %}
           </p>
           {% endif %}
         </section>
@@ -156,6 +201,7 @@
               <div>{{ resume.email }}</div>
             </div>
             
+            {% if resume.address %}
             <div class="flex items-start">
               <div class="mr-2 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,8 +209,25 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <div>Rohara, Khardaha, North 24 Pgs</div>
+              <div>{{ resume.address }}</div>
             </div>
+            {% endif %}
+            
+            {% if resume.contact_details.all %}
+              {% for contact in resume.contact_details.all %}
+              <div class="flex items-start">
+                <div class="mr-2 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-sm text-gray-500">{{ contact.contact_type }}</div>
+                  <div class="text-gray-800 break-all">{{ contact.contact_value }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            {% endif %}
           </div>
         </section>
       </div>
@@ -185,7 +248,7 @@
           </svg>
           Edit Resume
         </a>
-        <a href="{% url 'createResume' %}" 
+        <a href="{% url 'create' %}" 
            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 shadow transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -206,7 +269,7 @@
     <h2 class="mt-2 text-lg font-medium text-gray-900">No resume found</h2>
     <p class="mt-1 text-gray-500">The resume you're looking for doesn't seem to exist.</p>
     <div class="mt-6">
-      <a href="{% url 'createResume' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
+      <a href="{% url 'create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
         Create a Resume
       </a>
     </div>

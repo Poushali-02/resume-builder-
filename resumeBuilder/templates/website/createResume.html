@@ -6,15 +6,24 @@
     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Create Your Resume</h2>
 
     <!-- Progress Steps -->
-    <div class="flex items-center mb-8">
-      <div class="flex-1">
-        <div class="h-2 bg-green-500 rounded"></div>
+    <div class="flex flex-col mb-8">
+      <div class="flex items-center mb-2">
+        <div id="progress-bar" class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
+          <div id="progress-indicator" class="h-full bg-green-500 transition-all duration-300" style="width: 20%"></div>
+        </div>
+        <div class="ml-2 text-sm font-medium">Step <span id="step-number">1</span>/5</div>
       </div>
-      <div class="ml-2 text-sm">Step <span id="step-number">1</span>/3</div>
+      <div class="flex justify-between text-xs text-gray-500">
+        <span>Personal</span>
+        <span>Experience</span>
+        <span>Education</span>
+        <span>Skills</span>
+        <span>Summary</span>
+      </div>
     </div>
 
     <!-- Multi-step Form -->
-    <form id="resumeForm" method="post" class="space-y-6" action="{% url 'createResume' %}" enctype="multipart/form-data">
+    <form id="resumeForm" method="post" class="space-y-6" action="{% url 'create' %}" enctype="multipart/form-data">
       {% csrf_token %}
 
       <!-- Step 1 - Personal Info -->
@@ -70,73 +79,183 @@
         </button>
       </div>
 
-      <!-- Step 2 - Education & Experience -->
+      <!-- Step 2 - Work Experience -->
       <div class="form-step hidden">
-        <div class="border p-4 rounded-lg mb-4">
-          <h3 class="text-lg font-medium text-gray-700 mb-3">Education</h3>
-          <div class="space-y-4">
-            <div>
-              <label class="block mb-2 text-gray-700 text-sm">Degree/Certificate</label>
-              <input type="text" name="degree" placeholder="e.g. Bachelor of Science in Computer Science" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
-            </div>
-            <div>
-              <label class="block mb-2 text-gray-700 text-sm">Institution</label>
-              <input type="text" name="institution" placeholder="e.g. University of Technology" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
+        <h3 class="text-lg font-semibold mb-4">Work Experience</h3>
+        
+        <div id="experience-container">
+          <div class="experience-entry mb-6 p-4 border rounded bg-gray-50">
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
               <div>
-                <label class="block mb-2 text-gray-700 text-sm">Start Date</label>
-                <input type="date" name="start_date" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+                <label class="block mb-1 text-700">Job Title</label>
+                <input type="text" name="job_title[]" placeholder="e.g. Software Developer" class="w-full border px-3 py-2 rounded shadow-sm">
               </div>
               <div>
-                <label class="block mb-2 text-gray-700 text-sm">End Date</label>
-                <input type="date" name="end_date" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+                <label class="block mb-1 text-700">Company</label>
+                <input type="text" name="company[]" placeholder="e.g. ABC Technologies" class="w-full border px-3 py-2 rounded shadow-sm">
               </div>
             </div>
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <label class="block mb-1 text-700">Start Date</label>
+                <input type="month" name="job_start_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+              </div>
+              <div>
+                <label class="block mb-1 text-700">End Date</label>
+                <div class="flex items-center space-x-2">
+                  <input type="month" name="job_end_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+                  <label class="flex items-center">
+                    <input type="checkbox" name="current_job_0" class="mr-1"> Current
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="block mb-1 text-700">Location</label>
+              <input type="text" name="job_location[]" placeholder="e.g. New York, NY" class="w-full border px-3 py-2 rounded shadow-sm">
+            </div>
             <div>
-              <label class="block mb-2 text-gray-700 text-sm">Description</label>
-              <textarea name="education_description" rows="2" placeholder="Additional information about your education" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+              <label class="block mb-1 text-700">Description</label>
+              <textarea name="job_description[]" rows="3" placeholder="Describe your responsibilities and achievements" class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
             </div>
           </div>
         </div>
-        <div>
-          <label class="block mb-2 text-gray-700">Experience</label>
-          <textarea name="experience" rows="4" placeholder="Describe your professional experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
-        </div>
+        
+        <button type="button" id="add-experience-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add Another Experience
+        </button>
       </div>
 
-      <!-- Step 3 - Skills & Summary -->
+      <!-- Step 3 - Education -->
       <div class="form-step hidden">
-        <div class="border p-4 rounded-lg mb-4">
-          <h3 class="text-lg font-medium text-gray-700 mb-3">Skills</h3>
-          <div id="skills-container" class="space-y-4">
-            <div class="skill-entry flex items-start space-x-3">
-              <div class="flex-1">
-                <label class="block mb-2 text-gray-700 text-sm">Skill Type</label>
-                <input type="text" name="skill_types[]" placeholder="e.g. Programming, Design, Marketing" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+        <h3 class="text-lg font-semibold mb-4">Education</h3>
+        
+        <div id="education-container">
+          <div class="education-entry mb-6 p-4 border rounded bg-gray-50">
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <label class="block mb-1 text-700">Degree/Certificate</label>
+                <input type="text" name="degree[]" placeholder="e.g. Bachelor of Science" class="w-full border px-3 py-2 rounded shadow-sm">
               </div>
-              <div class="flex-1">
-                <label class="block mb-2 text-gray-700 text-sm">Description</label>
-                <input type="text" name="skill_descriptions[]" placeholder="e.g. Expert in Python, 5 years experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+              <div>
+                <label class="block mb-1 text-700">Institution</label>
+                <input type="text" name="institution[]" placeholder="e.g. University of Technology" class="w-full border px-3 py-2 rounded shadow-sm">
               </div>
-              <button type="button" class="remove-skill mt-7 text-red-500 hover:text-red-700" title="Remove skill">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-              </button>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+              <div>
+                <label class="block mb-1 text-700">Start Date</label>
+                <input type="month" name="edu_start_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+              </div>
+              <div>
+                <label class="block mb-1 text-700">End Date</label>
+                <div class="flex items-center space-x-2">
+                  <input type="month" name="edu_end_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+                  <label class="flex items-center">
+                    <input type="checkbox" name="current_edu_0" class="mr-1"> Current
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="block mb-1 text-700">Location</label>
+              <input type="text" name="edu_location[]" placeholder="e.g. Boston, MA" class="w-full border px-3 py-2 rounded shadow-sm">
+            </div>
+            <div>
+              <label class="block mb-1 text-700">Description</label>
+              <textarea name="edu_description[]" rows="2" placeholder="Describe your studies, achievements, etc." class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
             </div>
           </div>
-          <button type="button" id="add-skill-btn" class="mt-3 bg-blue-100 hover:bg-blue-200 text-blue-600 px-3 py-1 rounded text-sm flex items-center">
+        </div>
+        
+        <button type="button" id="add-education-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add Another Education
+        </button>
+      </div>
+      
+      <!-- Step 4 - Skills -->
+      <div class="form-step hidden">
+        <h3 class="text-lg font-semibold mb-4">Skills</h3>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Programming Skills -->
+          <div class="space-y-4">
+            <h4 class="font-medium">Programming Skills</h4>
+            <div id="programming-skills-container">
+              <div class="skill-entry mb-3">
+                <div class="flex space-x-2">
+                  <input type="text" name="programming_skill[]" placeholder="Skill name" class="w-2/3 border px-3 py-2 rounded shadow-sm">
+                  <select name="programming_level[]" class="w-1/3 border px-3 py-2 rounded shadow-sm">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Expert">Expert</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="add-programming-skill-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Add Another Skill
+            </button>
+          </div>
+          
+          <!-- Language Skills -->
+          <div class="space-y-4">
+            <h4 class="font-medium">Language Skills</h4>
+            <div id="language-skills-container">
+              <div class="language-entry mb-3">
+                <div class="flex space-x-2">
+                  <input type="text" name="language[]" placeholder="Language" class="w-2/3 border px-3 py-2 rounded shadow-sm">
+                  <select name="language_level[]" class="w-1/3 border px-3 py-2 rounded shadow-sm">
+                    <option value="Basic">Basic</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Fluent">Fluent</option>
+                    <option value="Native">Native</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="add-language-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Add Another Language
+            </button>
+          </div>
+        </div>
+        
+        <!-- Other Skills -->
+        <div class="mt-6 space-y-4">
+          <h4 class="font-medium">Other Skills</h4>
+          <div id="other-skills-container">
+            <div class="other-skill-entry mb-3">
+              <input type="text" name="other_skill[]" placeholder="Other skill" class="w-full border px-3 py-2 rounded shadow-sm">
+            </div>
+          </div>
+          <button type="button" id="add-other-skill-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
             Add Another Skill
           </button>
         </div>
-
+      </div>
+      
+      <!-- Step 5 - Summary -->
+      <div class="form-step hidden">
+        <h3 class="text-lg font-semibold mb-4">Professional Summary</h3>
         <div>
-          <label class="block mb-2 text-gray-700">Professional Summary</label>
-          <textarea name="summary" rows="4" placeholder="A brief overview of your professional background, achievements and career goals" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+          <label class="block mb-2 text-700">Summary</label>
+          <textarea name="summary" rows="6" placeholder="A brief overview of your professional background, key achievements, and career goals" class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
         </div>
       </div>
 
@@ -151,6 +270,7 @@
 
 <!-- Multi-step Form Script -->
 <script>
+  // Form navigation
   const steps = document.querySelectorAll('.form-step');
   const nextBtn = document.getElementById('nextBtn');
   const prevBtn = document.getElementById('prevBtn');
@@ -165,6 +285,10 @@
     stepNumber.textContent = step + 1;
     prevBtn.disabled = step === 0;
     nextBtn.textContent = step === steps.length - 1 ? 'Submit' : 'Next';
+    
+    // Update progress bar
+    const progressPercent = ((step + 1) / steps.length) * 100;
+    document.getElementById('progress-indicator').style.width = `${progressPercent}%`;
   }
 
   nextBtn.addEventListener('click', () => {
@@ -183,37 +307,186 @@
     }
   });
 
-  // Skills add/remove functionality
-  const skillsContainer = document.getElementById('skills-container');
-  const addSkillBtn = document.getElementById('add-skill-btn');
-  
-  // Add event listener for removing skills
-  skillsContainer.addEventListener('click', (e) => {
-    if (e.target.closest('.remove-skill') && document.querySelectorAll('.skill-entry').length > 1) {
-      e.target.closest('.skill-entry').remove();
+  // Image upload and preview
+  const imageUpload = document.getElementById('image-upload');
+  const previewContainer = document.getElementById('preview-container');
+  const previewImage = document.getElementById('preview-image');
+  const uploadIcon = document.getElementById('upload-icon');
+
+  imageUpload.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.addEventListener('load', function() {
+        previewImage.setAttribute('src', this.result);
+        previewContainer.classList.remove('hidden');
+        uploadIcon.classList.add('hidden');
+      });
+      reader.readAsDataURL(file);
     }
   });
-  
-  // Add event listener for adding skills
-  addSkillBtn.addEventListener('click', () => {
-    const skillEntry = document.createElement('div');
-    skillEntry.className = 'skill-entry flex items-start space-x-3';
-    skillEntry.innerHTML = `
-      <div class="flex-1">
-        <label class="block mb-2 text-gray-700 text-sm">Skill Type</label>
-        <input type="text" name="skill_types[]" placeholder="e.g. Programming, Design, Marketing" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+
+  // Contact details
+  const contactContainer = document.getElementById('contact-info-container');
+  const addContactBtn = document.getElementById('add-contact-btn');
+
+  addContactBtn.addEventListener('click', () => {
+    const contactEntry = document.createElement('div');
+    contactEntry.className = 'contact-entry mt-3';
+    contactEntry.innerHTML = `
+      <div class="flex space-x-2">
+        <input type="text" name="contact_type[]" placeholder="e.g. LinkedIn, Website, GitHub" class="w-1/3 border px-3 py-2 rounded shadow-sm">
+        <input type="text" name="contact_value[]" placeholder="e.g. https://linkedin.com/in/yourprofile" class="w-2/3 border px-3 py-2 rounded shadow-sm">
       </div>
-      <div class="flex-1">
-        <label class="block mb-2 text-gray-700 text-sm">Description</label>
-        <input type="text" name="skill_descriptions[]" placeholder="e.g. Expert in Python, 5 years experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
-      </div>
-      <button type="button" class="remove-skill mt-7 text-red-500 hover:text-red-700" title="Remove skill">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
     `;
-    skillsContainer.appendChild(skillEntry);
+    contactContainer.appendChild(contactEntry);
+  });
+
+  // Work Experience
+  const experienceContainer = document.getElementById('experience-container');
+  const addExperienceBtn = document.getElementById('add-experience-btn');
+
+  addExperienceBtn.addEventListener('click', () => {
+    const experienceIndex = document.querySelectorAll('.experience-entry').length;
+    const experienceEntry = document.createElement('div');
+    experienceEntry.className = 'experience-entry mb-6 p-4 border rounded bg-gray-50';
+    experienceEntry.innerHTML = `
+      <div class="grid md:grid-cols-2 gap-4 mb-3">
+        <div>
+          <label class="block mb-1 text-700">Job Title</label>
+          <input type="text" name="job_title[]" placeholder="e.g. Software Developer" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+        <div>
+          <label class="block mb-1 text-700">Company</label>
+          <input type="text" name="company[]" placeholder="e.g. ABC Technologies" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mb-3">
+        <div>
+          <label class="block mb-1 text-700">Start Date</label>
+          <input type="month" name="job_start_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+        <div>
+          <label class="block mb-1 text-700">End Date</label>
+          <div class="flex items-center space-x-2">
+            <input type="month" name="job_end_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+            <label class="flex items-center">
+              <input type="checkbox" name="current_job_${experienceIndex}" class="mr-1"> Current
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="block mb-1 text-700">Location</label>
+        <input type="text" name="job_location[]" placeholder="e.g. New York, NY" class="w-full border px-3 py-2 rounded shadow-sm">
+      </div>
+      <div>
+        <label class="block mb-1 text-700">Description</label>
+        <textarea name="job_description[]" rows="3" placeholder="Describe your responsibilities and achievements" class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
+      </div>
+    `;
+    experienceContainer.appendChild(experienceEntry);
+  });
+
+  // Education
+  const educationContainer = document.getElementById('education-container');
+  const addEducationBtn = document.getElementById('add-education-btn');
+
+  addEducationBtn.addEventListener('click', () => {
+    const educationIndex = document.querySelectorAll('.education-entry').length;
+    const educationEntry = document.createElement('div');
+    educationEntry.className = 'education-entry mb-6 p-4 border rounded bg-gray-50';
+    educationEntry.innerHTML = `
+      <div class="grid md:grid-cols-2 gap-4 mb-3">
+        <div>
+          <label class="block mb-1 text-700">Degree/Certificate</label>
+          <input type="text" name="degree[]" placeholder="e.g. Bachelor of Science" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+        <div>
+          <label class="block mb-1 text-700">Institution</label>
+          <input type="text" name="institution[]" placeholder="e.g. University of Technology" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mb-3">
+        <div>
+          <label class="block mb-1 text-700">Start Date</label>
+          <input type="month" name="edu_start_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+        </div>
+        <div>
+          <label class="block mb-1 text-700">End Date</label>
+          <div class="flex items-center space-x-2">
+            <input type="month" name="edu_end_date[]" class="w-full border px-3 py-2 rounded shadow-sm">
+            <label class="flex items-center">
+              <input type="checkbox" name="current_edu_${educationIndex}" class="mr-1"> Current
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="block mb-1 text-700">Location</label>
+        <input type="text" name="edu_location[]" placeholder="e.g. Boston, MA" class="w-full border px-3 py-2 rounded shadow-sm">
+      </div>
+      <div>
+        <label class="block mb-1 text-700">Description</label>
+        <textarea name="edu_description[]" rows="2" placeholder="Describe your studies, achievements, etc." class="w-full border px-3 py-2 rounded shadow-sm"></textarea>
+      </div>
+    `;
+    educationContainer.appendChild(educationEntry);
+  });
+
+  // Skills - Programming
+  const programmingSkillsContainer = document.getElementById('programming-skills-container');
+  const addProgrammingSkillBtn = document.getElementById('add-programming-skill-btn');
+
+  addProgrammingSkillBtn.addEventListener('click', () => {
+    const skillEntry = document.createElement('div');
+    skillEntry.className = 'skill-entry mb-3';
+    skillEntry.innerHTML = `
+      <div class="flex space-x-2">
+        <input type="text" name="programming_skill[]" placeholder="Skill name" class="w-2/3 border px-3 py-2 rounded shadow-sm">
+        <select name="programming_level[]" class="w-1/3 border px-3 py-2 rounded shadow-sm">
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+          <option value="Expert">Expert</option>
+        </select>
+      </div>
+    `;
+    programmingSkillsContainer.appendChild(skillEntry);
+  });
+
+  // Skills - Languages
+  const languageSkillsContainer = document.getElementById('language-skills-container');
+  const addLanguageBtn = document.getElementById('add-language-btn');
+
+  addLanguageBtn.addEventListener('click', () => {
+    const languageEntry = document.createElement('div');
+    languageEntry.className = 'language-entry mb-3';
+    languageEntry.innerHTML = `
+      <div class="flex space-x-2">
+        <input type="text" name="language[]" placeholder="Language" class="w-2/3 border px-3 py-2 rounded shadow-sm">
+        <select name="language_level[]" class="w-1/3 border px-3 py-2 rounded shadow-sm">
+          <option value="Basic">Basic</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Fluent">Fluent</option>
+          <option value="Native">Native</option>
+        </select>
+      </div>
+    `;
+    languageSkillsContainer.appendChild(languageEntry);
+  });
+
+  // Skills - Other
+  const otherSkillsContainer = document.getElementById('other-skills-container');
+  const addOtherSkillBtn = document.getElementById('add-other-skill-btn');
+
+  addOtherSkillBtn.addEventListener('click', () => {
+    const otherSkillEntry = document.createElement('div');
+    otherSkillEntry.className = 'other-skill-entry mb-3';
+    otherSkillEntry.innerHTML = `
+      <input type="text" name="other_skill[]" placeholder="Other skill" class="w-full border px-3 py-2 rounded shadow-sm">
+    `;
+    otherSkillsContainer.appendChild(otherSkillEntry);
   });
 
   showStep(currentStep);
