@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center py-10">
+  <div class="bg-white shadow-lg rounded-lg w-full max-w-3xl p-8">
+    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Create Your Resume</h2>
+
+    <!-- Progress Steps -->
+    <div class="flex items-center mb-8">
+      <div class="flex-1">
+        <div class="h-2 bg-green-500 rounded"></div>
+      </div>
+      <div class="ml-2 text-sm">Step <span id="step-number">1</span>/3</div>
+    </div>
+
+    <!-- Multi-step Form -->
+    <form id="resumeForm" method="post" class="space-y-6" action="{% url 'createResume' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Step 1 - Personal Info -->
+      <div class="form-step block">
+        <div class="grid md:grid-cols-3 gap-6 items-center mb-6">
+          <div class="md:col-span-2 space-y-4">
+            <div>
+              <label class="block mb-2 text-700">Full Name</label>
+              <input type="text" name="full_name" class="w-full border px-3 py-2 rounded shadow-sm focus:ring-green-500 focus:border-green-500" required>
+            </div>
+            <div>
+              <label class="block mb-2 text-700">Occupation</label>
+              <input type="text" name="occupation" placeholder="e.g. Student, Software Engineer" class="w-full border px-3 py-2 rounded shadow-sm focus:ring-green-500 focus:border-green-500">
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center bg-gray-50 relative">
+              <input type="file" name="image" id="image-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+              <div id="preview-container" class="w-full h-full rounded-full overflow-hidden hidden">
+                <img id="preview-image" src="#" alt="Preview" class="w-full h-full object-cover">
+              </div>
+              <div id="upload-icon" class="text-gray-400 flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs mt-1">Upload photo</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Click to upload your photo</p>
+          </div>
+        </div>
+        
+        <div id="contact-info-container" class="space-y-4">
+          <div class="contact-entry">
+            <label class="block mb-2 text-700">Email</label>
+            <input type="email" name="email" class="w-full border px-3 py-2 rounded shadow-sm focus:ring-green-500 focus:border-green-500" required>
+          </div>
+          <div class="contact-entry">
+            <label class="block mb-2 text-700">Phone</label>
+            <input type="text" name="phone" class="w-full border px-3 py-2 rounded shadow-sm focus:ring-green-500 focus:border-green-500" required>
+          </div>
+          <div class="contact-entry">
+            <label class="block mb-2 text-700">Address</label>
+            <input type="text" name="address" placeholder="e.g. Rohara, Khardaha, North 24 Pgs" class="w-full border px-3 py-2 rounded shadow-sm focus:ring-green-500 focus:border-green-500">
+          </div>
+        </div>
+        
+        <button type="button" id="add-contact-btn" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add Another Contact Detail
+        </button>
+      </div>
+
+      <!-- Step 2 - Education & Experience -->
+      <div class="form-step hidden">
+        <div class="border p-4 rounded-lg mb-4">
+          <h3 class="text-lg font-medium text-gray-700 mb-3">Education</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block mb-2 text-gray-700 text-sm">Degree/Certificate</label>
+              <input type="text" name="degree" placeholder="e.g. Bachelor of Science in Computer Science" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div>
+              <label class="block mb-2 text-gray-700 text-sm">Institution</label>
+              <input type="text" name="institution" placeholder="e.g. University of Technology" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block mb-2 text-gray-700 text-sm">Start Date</label>
+                <input type="date" name="start_date" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+              </div>
+              <div>
+                <label class="block mb-2 text-gray-700 text-sm">End Date</label>
+                <input type="date" name="end_date" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+              </div>
+            </div>
+            <div>
+              <label class="block mb-2 text-gray-700 text-sm">Description</label>
+              <textarea name="education_description" rows="2" placeholder="Additional information about your education" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="block mb-2 text-gray-700">Experience</label>
+          <textarea name="experience" rows="4" placeholder="Describe your professional experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+        </div>
+      </div>
+
+      <!-- Step 3 - Skills & Summary -->
+      <div class="form-step hidden">
+        <div class="border p-4 rounded-lg mb-4">
+          <h3 class="text-lg font-medium text-gray-700 mb-3">Skills</h3>
+          <div id="skills-container" class="space-y-4">
+            <div class="skill-entry flex items-start space-x-3">
+              <div class="flex-1">
+                <label class="block mb-2 text-gray-700 text-sm">Skill Type</label>
+                <input type="text" name="skill_types[]" placeholder="e.g. Programming, Design, Marketing" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+              </div>
+              <div class="flex-1">
+                <label class="block mb-2 text-gray-700 text-sm">Description</label>
+                <input type="text" name="skill_descriptions[]" placeholder="e.g. Expert in Python, 5 years experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+              </div>
+              <button type="button" class="remove-skill mt-7 text-red-500 hover:text-red-700" title="Remove skill">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <button type="button" id="add-skill-btn" class="mt-3 bg-blue-100 hover:bg-blue-200 text-blue-600 px-3 py-1 rounded text-sm flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add Another Skill
+          </button>
+        </div>
+
+        <div>
+          <label class="block mb-2 text-gray-700">Professional Summary</label>
+          <textarea name="summary" rows="4" placeholder="A brief overview of your professional background, achievements and career goals" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="flex justify-between pt-4">
+        <button type="button" id="prevBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg" disabled>Back</button>
+        <button type="button" id="nextBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">Next</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Multi-step Form Script -->
+<script>
+  const steps = document.querySelectorAll('.form-step');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const stepNumber = document.getElementById('step-number');
+  let currentStep = 0;
+
+  function showStep(step) {
+    steps.forEach((s, i) => {
+      s.classList.toggle('hidden', i !== step);
+      s.classList.toggle('block', i === step);
+    });
+    stepNumber.textContent = step + 1;
+    prevBtn.disabled = step === 0;
+    nextBtn.textContent = step === steps.length - 1 ? 'Submit' : 'Next';
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      document.getElementById('resumeForm').submit();
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  });
+
+  // Skills add/remove functionality
+  const skillsContainer = document.getElementById('skills-container');
+  const addSkillBtn = document.getElementById('add-skill-btn');
+  
+  // Add event listener for removing skills
+  skillsContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-skill') && document.querySelectorAll('.skill-entry').length > 1) {
+      e.target.closest('.skill-entry').remove();
+    }
+  });
+  
+  // Add event listener for adding skills
+  addSkillBtn.addEventListener('click', () => {
+    const skillEntry = document.createElement('div');
+    skillEntry.className = 'skill-entry flex items-start space-x-3';
+    skillEntry.innerHTML = `
+      <div class="flex-1">
+        <label class="block mb-2 text-gray-700 text-sm">Skill Type</label>
+        <input type="text" name="skill_types[]" placeholder="e.g. Programming, Design, Marketing" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+      </div>
+      <div class="flex-1">
+        <label class="block mb-2 text-gray-700 text-sm">Description</label>
+        <input type="text" name="skill_descriptions[]" placeholder="e.g. Expert in Python, 5 years experience" class="w-full border shadow-sm focus:ring-green-500 focus:border-green-500">
+      </div>
+      <button type="button" class="remove-skill mt-7 text-red-500 hover:text-red-700" title="Remove skill">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    `;
+    skillsContainer.appendChild(skillEntry);
+  });
+
+  showStep(currentStep);
+</script>
+{% endblock %}
