@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen bg-gray-100 flex items-center justify-center py-10">
+  <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Profile</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+
+      <!-- Profile Picture Preview -->
+      <div class="flex flex-col items-center">
+        <img id="pfpPreview"
+             src="{% if profile.pfp %}{{ profile.pfp.url }}{% else %}https://via.placeholder.com/150{% endif %}"
+             alt="Profile Picture"
+             class="w-32 h-32 rounded-full object-cover border border-gray-300 mb-3">
+        
+        <label class="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm">
+          Change Picture
+          <input type="file" name="pfp" id="pfpInput" accept="image/*" class="hidden">
+        </label>
+      </div>
+
+      <!-- Bio -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">Bio</label>
+        <textarea name="bio"
+                  rows="4"
+                  class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+                  placeholder="Write something about yourself...">{{ profile.bio }}</textarea>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-center">
+        <button type="submit"
+                class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Live Image Preview -->
+<script>
+  const pfpInput = document.getElementById('pfpInput');
+  const pfpPreview = document.getElementById('pfpPreview');
+
+  pfpInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        pfpPreview.src = event.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+{% endblock %}

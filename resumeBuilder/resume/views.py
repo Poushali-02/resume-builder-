@@ -3,6 +3,9 @@ from .models import (
     Resume, Education, WorkExperience, ContactDetail, 
     ProgrammingSkill, LanguageSkill, OtherSkill
 )
+
+from user.models import Profile
+
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 
@@ -152,6 +155,10 @@ def create(request):
                     resume=resume,
                     skill=skill
                 )
+        
+        profile = Profile.objects.get(user=request.user)
+        profile.resumeCount += 1
+        profile.save()
         
         return redirect('see_resume', resume_id=resume.id)
     return render(request, 'website/createResume.html')

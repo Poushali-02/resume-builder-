@@ -27,3 +27,16 @@ def login(request):
 
 def home(request):
     return render(request, 'website/home.html')
+
+def profile(request):
+    profile = Profile.objects.get(user=request.user)
+    return render(request, 'users/profile.html', {'profile': profile})
+
+def edit_profile(request, username):
+    profile = Profile.objects.get(user__username=username)
+    if request.method == "POST":
+        profile.pfp = request.FILES.get("pfp", profile.pfp)
+        profile.bio = request.POST.get("bio")
+        profile.save()
+        return redirect('profile')
+    return render(request, 'users/edit_profile.html', {'profile': profile})

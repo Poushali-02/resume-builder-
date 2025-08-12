@@ -19,6 +19,8 @@ class Resume(models.Model):
     created_at = models.DateTimeField(default=None, null=True, blank=True)
     updated_at = models.DateTimeField(default=None, null=True, blank=True)
     
+    resumePublic = models.BooleanField(default=False)
+    
     def save(self, *args, **kwargs):
         from django.utils import timezone
         if not self.created_at:
