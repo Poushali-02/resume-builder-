@@ -22,7 +22,7 @@
         {% if user.is_authenticated %}
         <button class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition">{{ user.username }}</button>
         {% else %}
-        <button class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition">Login</button>
+        <a class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition" href="{% url 'login' %}">Login</a>
         {% endif %}
     </header>
 

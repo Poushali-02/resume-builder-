@@ -3,17 +3,25 @@ from .models import (
     Resume, Education, WorkExperience, ContactDetail, 
     ProgrammingSkill, LanguageSkill, OtherSkill, Project
 )
-
 from user.models import Profile
-
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.conf import settings
+import os
 
 # Create your views here.
 @login_required
 def create(request):
+    
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     if request.method == 'POST':
-        # Get basic info
+        
         name = request.POST.get('full_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
@@ -344,3 +352,8 @@ def edit_resume(request, resume_id):
     }
 
     return render(request, 'website/editResume.html', context)
+
+@login_required
+def download_resume(request, resume_id):
+    resume = get_object_or_404(Resume, id=resume_id)
+    return 0

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ resume.full_name }}'s Resume</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Additional styles to ensure PDF rendering looks good */
+        @page {
+            size: letter portrait;
+            margin: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+        }
+        /* Ensure flex layout works in PDF */
+        .flex {
+            display: flex !important;
+        }
+        .w-2\/3 {
+            width: 66.666667% !important;
+        }
+        .w-1\/3 {
+            width: 33.333333% !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+  <div class="min-h-screen bg-gray-100 py-10">
+    <div class="max-w-3xl mx-auto bg-white shadow-lg border border-gray-200">
+      
+      <!-- Header Section with Profile Image -->
+      <div class="flex p-6 border-b">
+        {% if resume.image and resume.image.url %}
+        <div class="mr-6">
+          <img src="{{ resume.image.path }}" alt="{{ resume.full_name }}" class="h-24 w-24 rounded-full border-2 border-gray-300">
+        </div>
+        {% else %}
+        <div class="mr-6">
+          <div class="h-24 w-24 rounded-full border-2 border-gray-300 bg-gray-100 flex items-center justify-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+        {% endif %}
+        
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 uppercase">{{ resume.full_name }}</h1>
+          <p class="text-gray-600 mt-1">{% if resume.occupation %}{{ resume.occupation }}{% else %}STUDENT{% endif %}</p>
+        </div>
+      </div>
+
+      <div class="flex">
+        <!-- Left Section -->
+        <div class="w-2/3 p-6 border-r">
+          <!-- Work Experience -->
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> WORK EXPERIENCE
+            </h2>
+            
+            <div class="ml-6 space-y-4">
+              {% if resume.experiences.all %}
+                {% for exp in resume.experiences.all %}
+                <div class="mb-4">
+                  <div class="font-bold text-gray-800">{{ exp.job_title }} at {{ exp.company }}</div>
+                  <div class="text-sm text-gray-600 mb-1">
+                    {{ exp.start_date|date:"M Y" }} - 
+                    {% if exp.is_current %}
+                      Present
+                    {% else %}
+                      {{ exp.end_date|date:"M Y" }}
+                    {% endif %}
+                    {% if exp.location %}
+                    <span class="ml-2">• {{ exp.location }}</span>
+                    {% endif %}
+                  </div>
+                  {% if exp.description %}
+                  <div class="text-sm">{{ exp.description|linebreaks }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="text-gray-500 italic">No work experience listed</div>
+              {% endif %}
+            </div>
+          </section>
+          
+          <!-- Education -->
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> EDUCATION
+            </h2>
+            
+            <div class="ml-6 space-y-4">
+              {% if resume.educations.all %}
+                {% for edu in resume.educations.all %}
+                <div class="mb-4">
+                  <div class="font-bold uppercase text-gray-800">{{ edu.institution }}</div>
+                  <div class="text-sm text-gray-600 mb-1">
+                    {{ edu.start_date|date:"M Y" }} - 
+                    {% if edu.is_current %}
+                      Present
+                    {% else %}
+                      {{ edu.end_date|date:"M Y" }}
+                    {% endif %}
+                    {% if edu.location %}
+                    <span class="ml-2">• {{ edu.location }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="text-sm font-medium">{{ edu.degree }}</div>
+                  {% if edu.description %}
+                  <div class="text-sm mt-1">{{ edu.description }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="text-gray-500 italic">No education listed</div>
+              {% endif %}
+            </div>
+          </section>
+
+          <!-- Projects -->
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> PROJECTS
+            </h2>
+            
+            <div class="ml-6 space-y-4">
+              {% if resume.projects.all %}
+                {% for project in resume.projects.all %}
+                <div class="mb-4">
+                  <div class="font-bold text-gray-800">{{ project.title }}</div>
+                  {% if project.link %}
+                  <div class="text-sm text-blue-600 mb-1">
+                    <a href="{{ project.link }}" target="_blank">{{ project.link }}</a>
+                  </div>
+                  {% endif %}
+                  {% if project.description %}
+                  <div class="text-sm">{{ project.description }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="text-gray-500 italic">No projects listed</div>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Section -->
+        <div class="w-1/3 p-6">
+          <!-- Contact Information -->
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> CONTACT
+            </h2>
+            <div class="ml-6">
+              <div class="text-sm mb-2">{{ resume.email }}</div>
+              <div class="text-sm mb-2">{{ resume.phone }}</div>
+              {% if resume.address %}
+              <div class="text-sm mb-2">{{ resume.address }}</div>
+              {% endif %}
+              
+              {% if resume.contact_details.all %}
+                {% for contact in resume.contact_details.all %}
+                <div class="text-sm mb-2">
+                  <span class="font-medium">{{ contact.contact_type }}:</span> {{ contact.contact_value }}
+                </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </section>
+          
+          <!-- Summary -->
+          {% if resume.summary %}
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> SUMMARY
+            </h2>
+            <div class="ml-6 text-sm">
+              {{ resume.summary|linebreaks }}
+            </div>
+          </section>
+          {% endif %}
+          
+          <!-- Programming Skills -->
+          {% if resume.programming_skills.all %}
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> PROGRAMMING SKILLS
+            </h2>
+            <div class="ml-6">
+              {% for skill in resume.programming_skills.all %}
+              <div class="mb-2 flex justify-between">
+                <span class="text-sm">{{ skill.skill_name }}</span>
+                <span class="text-xs text-gray-500">{{ skill.level }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </section>
+          {% endif %}
+          
+          <!-- Language Skills -->
+          {% if resume.language_skills.all %}
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> LANGUAGES
+            </h2>
+            <div class="ml-6">
+              {% for lang in resume.language_skills.all %}
+              <div class="mb-2 flex justify-between">
+                <span class="text-sm">{{ lang.language }}</span>
+                <span class="text-xs text-gray-500">{{ lang.level }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </section>
+          {% endif %}
+          
+          <!-- Other Skills -->
+          {% if resume.other_skills.all %}
+          <section class="mb-8">
+            <h2 class="font-bold uppercase text-black mb-4 flex items-center">
+              <span class="mr-2">•</span> OTHER SKILLS
+            </h2>
+            <div class="ml-6">
+              {% for skill in resume.other_skills.all %}
+              <div class="text-sm mb-1">{{ skill.skill }}</div>
+              {% endfor %}
+            </div>
+          </section>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
