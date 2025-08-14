@@ -1,56 +1,197 @@
 
     {% extends 'base.html' %}
     
-{% block title %}Home - Resume Builder{% endblock %}
-    {% block content %}
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 md:mb-0">Create your professional resume in minutes</h2>
-            <a href="{% url 'create' %}" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">Create Resume</a>
-        </div>
+{% block title %}Dashboard - Resume Builder{% endblock %}
 
-        <h3 class="text-lg font-semibold text-blue-700 mb-4">Featured Public Resumes</h3>
-        <div class="grid gap-6 md:grid-cols-3">
-            <!-- Dummy Resume Card 1 -->
-            <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-                <h4 class="text-blue-600 font-bold text-lg mb-2">Jane Doe</h4>
-                <p class="text-gray-700 mb-1">Frontend Developer</p>
-                <p class="text-gray-500 text-sm mb-3">San Francisco, CA</p>
-                <ul class="text-gray-600 text-sm mb-3">
-                    <li>• React, Tailwind CSS, JavaScript</li>
-                    <li>• 3 years experience</li>
-                </ul>
-                <a href="#" class="text-blue-500 hover:underline text-sm">View Resume</a>
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row items-center">
+            <div class="lg:w-1/2 mb-10 lg:mb-0">
+                <h1 class="text-4xl font-bold mb-4">Build Your Professional Resume</h1>
+                <p class="text-xl mb-8">Create stunning resumes that stand out and get you hired.</p>
+                <div class="flex space-x-4">
+                    <a href="{% url 'create' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg">Create New Resume</a>
+                    {% if user_resumes %}
+                    <a href="{% url 'see_resume' resume_id=user_resumes.0.id %}" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">View Latest Resume</a>
+                    {% endif %}
+                </div>
             </div>
-            <!-- Dummy Resume Card 2 -->
-            <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-                <h4 class="text-blue-600 font-bold text-lg mb-2">John Smith</h4>
-                <p class="text-gray-700 mb-1">Data Scientist</p>
-                <p class="text-gray-500 text-sm mb-3">New York, NY</p>
-                <ul class="text-gray-600 text-sm mb-3">
-                    <li>• Python, Machine Learning, SQL</li>
-                    <li>• 5 years experience</li>
-                </ul>
-                <a href="#" class="text-blue-500 hover:underline text-sm">View Resume</a>
-            </div>
-            <!-- Dummy Resume Card 3 -->
-            <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-                <h4 class="text-blue-600 font-bold text-lg mb-2">Priya Patel</h4>
-                <p class="text-gray-700 mb-1">UI/UX Designer</p>
-                <p class="text-gray-500 text-sm mb-3">Bangalore, India</p>
-                <ul class="text-gray-600 text-sm mb-3">
-                    <li>• Figma, Adobe XD, Prototyping</li>
-                    <li>• 4 years experience</li>
-                </ul>
-                <a href="#" class="text-blue-500 hover:underline text-sm">View Resume</a>
+            <div class="lg:w-1/2">
+                <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Resume Builder" class="rounded-lg shadow-2xl">
             </div>
         </div>
     </div>
-    <!-- Footer -->
-    <footer class="bg-white shadow mt-8 p-4 text-center text-gray-500 text-sm">
-        &copy; Resume Builder 2025. All rights reserved.
-    </footer>
-    {% endblock %}
+</section>
+
+<!-- User's Resumes Section -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Your Resumes</h2>
+            <a href="{% url 'create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">Create New</a>
+        </div>
+        
+        {% if user_resumes %}
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {% for resume in user_resumes %}
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300 border border-gray-100">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-blue-600">{{ resume.full_name }}</h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Last updated: {{ resume.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                    <p class="text-gray-700 font-medium mb-2">{{ resume.occupation|default:"Professional" }}</p>
+                    <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ resume.summary|default:"No summary provided." }}</p>
+                    
+                    <div class="flex justify-between items-center mt-6">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'edit_resume' resume_id=resume.id %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</a>
+                            <span class="text-gray-300">|</span>
+                            <a href="{% url 'see_resume' resume_id=resume.id %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View</a>
+                        </div>
+                        <a href="{% url 'download_resume' resume_id=resume.id %}" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-100 transition">Download PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <svg class="w-16 h-16 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">No Resumes Yet</h3>
+            <p class="text-gray-600 mb-6">Create your first professional resume in minutes</p>
+            <a href="{% url 'create' %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-md font-medium hover:bg-blue-700 transition">Create Resume Now</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Featured Public Resumes -->
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Featured Public Resumes</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Browse through public resumes for inspiration or to find talent.</p>
+        </div>
+        
+        {% if public_resumes %}
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {% for resume in public_resumes %}
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <div class="h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+                
+                <div class="flex items-center p-6 pb-4 border-b border-gray-100">
+                    {% if resume.image %}
+                    <img src="{{ resume.image.url }}" alt="{{ resume.full_name }}" class="w-12 h-12 rounded-full object-cover mr-4">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                        <span class="text-blue-600 font-bold text-lg">{{ resume.full_name|slice:":1" }}</span>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="font-bold text-gray-800">{{ resume.full_name }}</h3>
+                        <p class="text-sm text-gray-600">{{ resume.occupation|default:"Professional" }}</p>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    {% if resume.summary %}
+                    <p class="text-gray-700 text-sm mb-4 line-clamp-2">{{ resume.summary }}</p>
+                    {% endif %}
+                    
+                    {% if resume.latest_job %}
+                    <div class="mb-4">
+                        <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Current/Recent Position</p>
+                        <p class="text-sm font-medium text-gray-800">{{ resume.latest_job.job_title }} at {{ resume.latest_job.company }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if resume.top_skills %}
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-semibold mb-2">Top Skills</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in resume.top_skills %}
+                            <span class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full">{{ skill.skill_name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-6 flex justify-between items-center">
+                        <p class="text-xs text-gray-500">Created by @{{ resume.user_profile.user.username }}</p>
+                        <a href="{% url 'see_resume' resume_id=resume.id %}" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition">View Resume</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">No Public Resumes Available</h3>
+            <p class="text-gray-600">Be the first to share your resume with the community!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Why Choose Our Resume Builder</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Our professional tools make resume creation simple and effective.</p>
+        </div>
+        
+        <div class="grid gap-8 md:grid-cols-3">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-lg p-6 text-center shadow-md">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Easy to Use</h3>
+                <p class="text-gray-600">Create professional resumes in minutes with our intuitive interface.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-lg p-6 text-center shadow-md">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Professional Designs</h3>
+                <p class="text-gray-600">Choose from professionally designed templates that stand out.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-lg p-6 text-center shadow-md">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">PDF Download</h3>
+                <p class="text-gray-600">Download your resume as a professional PDF ready to send to employers.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Create Your Professional Resume?</h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto">Join thousands of professionals who've boosted their career with our resume builder.</p>
+        <a href="{% url 'create' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg text-lg">Get Started Now</a>
+    </div>
+</section>
+{% endblock %}
         &copy; 2025 Resume Builder. All rights reserved.
     </footer>
 </body>

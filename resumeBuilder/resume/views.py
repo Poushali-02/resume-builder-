@@ -17,7 +17,6 @@ from django.conf import settings
 import os
 
 # Create your views here.
-@login_required
 def create(request):
     
     if not request.user.is_authenticated:
@@ -189,15 +188,43 @@ def create(request):
         return redirect('see_resume', resume_id=resume.id)
     return render(request, 'website/createResume.html')
 
-@login_required
 def see_resume(request, resume_id):
-    resume = Resume.objects.get(id=resume_id)
-    if resume is not None:
-        return render(request, 'website/resume.html', {'resume': resume})
-    return render(request, 'website/resume.html', {'resume': None})
+    
+    if not request.user.is_authenticated:
+        return redirect('login')
+    try:
+        resume = Resume.objects.get(id=resume_id)
+        
+        # Get related resumes (other resumes by the same user or with similar occupation)
+        if resume.user:
+            # Get other resumes by the same user
+            related_user_resumes = Resume.objects.filter(user=resume.user).exclude(id=resume_id)
+            
+            # If not enough user resumes, try to get resumes with similar occupation
+            if related_user_resumes.count() < 3 and resume.occupation:
+                related_occupation_resumes = Resume.objects.filter(
+                    occupation__icontains=resume.occupation
+                ).exclude(id=resume_id).exclude(user=resume.user)[:3-related_user_resumes.count()]
+                
+                related_resumes = list(related_user_resumes) + list(related_occupation_resumes)
+            else:
+                related_resumes = related_user_resumes[:3]  # Limit to 3
+        else:
+            related_resumes = []
+        
+        context = {
+            'resume': resume,
+            'related_resumes': related_resumes
+        }
+        
+        return render(request, 'website/resume.html', context)
+    except Resume.DoesNotExist:
+        return render(request, 'website/resume.html', {'resume': None})
 
-@login_required
 def edit_resume(request, resume_id):
+    
+    if not request.user.is_authenticated:
+        return redirect('login')
     resume = get_object_or_404(Resume, id=resume_id)
 
     if request.method == 'POST':
@@ -356,8 +383,10 @@ def edit_resume(request, resume_id):
 
     return render(request, 'website/editResume.html', context)
 
-@login_required
 def download_resume(request, resume_id):
+    
+    if not request.user.is_authenticated:
+        return redirect('login')
     resume = get_object_or_404(Resume, id=resume_id)
     context = {
         'resume': resume,

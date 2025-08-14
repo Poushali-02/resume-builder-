@@ -42,9 +42,42 @@ def logout(request):
     auth_logout(request)
     return redirect('login')
 
-@login_required
 def home(request):
-    return render(request, 'website/home.html')
+    # Get users with public resumes
+    public_profiles = Profile.objects.filter(resumePublic=True)
+    
+    # Get all public resumes (resumes of users with public profiles)
+    public_resumes = []
+    
+    for profile in public_profiles:
+        # Get all resumes for this user and add them to our list
+        user_resumes = Resume.objects.filter(user=profile.user).order_by('-updated_at')[:3]  # Limit to 3 most recent
+        for resume in user_resumes:
+            # Add some additional data to each resume
+            resume.user_profile = profile
+            
+            # Get top skills (limited to 3)
+            tech_skills = resume.programming_skills.all()[:3]
+            resume.top_skills = tech_skills
+            
+            # Get most recent work experience
+            latest_experience = resume.experiences.all().order_by('-start_date').first()
+            resume.latest_job = latest_experience
+            
+            public_resumes.append(resume)
+    
+    # Get user's own resumes
+    if request.user.is_authenticated:
+        user_resumes = Resume.objects.filter(user=request.user).order_by('-updated_at')
+    else:
+        user_resumes = []
+    
+    context = {
+        'public_resumes': public_resumes[:6],  # Limit to 6 public resumes
+        'user_resumes': user_resumes,
+    }
+    
+    return render(request, 'website/home.html', context)
 
 @login_required
 def profile(request):
