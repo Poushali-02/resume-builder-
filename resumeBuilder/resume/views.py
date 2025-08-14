@@ -7,9 +7,10 @@ from user.models import Profile
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.template.loader import get_template
-from io import BytesIO
-from xhtml2pdf import pisa
 from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+import tempfile
 from django.conf import settings
 import os
 
@@ -356,4 +357,23 @@ def edit_resume(request, resume_id):
 @login_required
 def download_resume(request, resume_id):
     resume = get_object_or_404(Resume, id=resume_id)
-    return 0
+    context = {
+        'resume': resume,
+        'hide_nav': True,
+    }
+    html_string = render_to_string('website/resume_pdf.html', context)  
+
+    # Tell the HTTP response it's a PDF file
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{resume.full_name}_resume.pdf"'
+    HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf(
+        response,
+        stylesheets=[
+            CSS(string='''
+                @page { size: A4; margin: 1cm }
+                body { font-family: sans-serif; }
+            ''')
+        ]
+    )
+    redirect('see_resume', resume_id=resume.id)
+    return response

@@ -4,3 +4,5 @@ __pycache__/
 resumes/images/
 resumes/
 media/
+myenv/
+node_modules/

@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ resume.full_name }}'s Resume</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tailwind.min.css' %}">
     <style>
         /* Additional styles to ensure PDF rendering looks good */
         @page {
@@ -37,7 +40,7 @@
       <div class="flex p-6 border-b">
         {% if resume.image and resume.image.url %}
         <div class="mr-6">
-          <img src="{{ resume.image.path }}" alt="{{ resume.full_name }}" class="h-24 w-24 rounded-full border-2 border-gray-300">
+          <img src="{{ resume.image.url }}" alt="{{ resume.full_name }}" class="h-24 w-24 rounded-full border-2 border-gray-300">
         </div>
         {% else %}
         <div class="mr-6">
