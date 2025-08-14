@@ -19,11 +19,9 @@ from django.urls import path
 from django.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import home_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user.urls')),
     path('resume/', include('resume.urls')),
-    path('', home_view, name='home_view'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,6 +3,8 @@ from .models import (
     Resume, Education, WorkExperience, ContactDetail, 
     ProgrammingSkill, LanguageSkill, OtherSkill, Project
 )
+
+from django.http import FileResponse
 from user.models import Profile
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
@@ -361,19 +363,30 @@ def download_resume(request, resume_id):
         'resume': resume,
         'hide_nav': True,
     }
-    html_string = render_to_string('website/resume_pdf.html', context)  
+    html_string = render_to_string('website/resume_pdf.html', context)
 
-    # Tell the HTTP response it's a PDF file
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{resume.full_name}_resume.pdf"'
-    HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf(
-        response,
-        stylesheets=[
-            CSS(string='''
-                @page { size: A4; margin: 1cm }
-                body { font-family: sans-serif; }
-            ''')
-        ]
+    # Create the PDF in memory
+    pdf_bytes = HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri('/')
+    ).write_pdf(
+        stylesheets=[CSS(string='@page { size: A4; margin: 1cm } body { font-family: sans-serif; }')]
     )
-    redirect('see_resume', resume_id=resume.id)
-    return response
+
+    # Define where to save (inside MEDIA_ROOT/resumes/)
+    filename = f"{resume.full_name.replace(' ', '_')}_resume.pdf"
+    save_path = os.path.join(settings.MEDIA_ROOT, 'resumes', filename)
+
+    # Make sure directory exists
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    # Save PDF to file
+    with open(save_path, 'wb') as f:
+        f.write(pdf_bytes)
+
+    # Store relative path in DB so we can use resume.pdf_file.url later
+    resume.pdf_file.name = f"resumes/{filename}"
+    resume.save(update_fields=['pdf_file'])
+
+    # Return saved PDF file as download
+    return FileResponse(open(save_path, 'rb'), as_attachment=True, filename=filename)

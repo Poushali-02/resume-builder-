@@ -8,7 +8,7 @@ class Resume(models.Model):
     full_name = models.CharField(max_length=255)
     occupation = models.CharField(max_length=100, blank=True, null=True)
     image = models.ImageField(upload_to='resumes/images/', blank=True, null=True)
-    
+    pdf_file = models.FileField(upload_to='resumes/', blank=True, null=True)
     # Contact details
     email = models.EmailField()
     phone = models.CharField(max_length=20)

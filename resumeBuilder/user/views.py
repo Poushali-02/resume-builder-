@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Profile
+from resume.models import Resume
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -48,7 +49,8 @@ def home(request):
 @login_required
 def profile(request):
     profile = Profile.objects.get(user=request.user)
-    return render(request, 'users/profile.html', {'profile': profile})
+    resume = Resume.objects.get(user=request.user)
+    return render(request, 'users/profile.html', {'profile': profile, 'resume': resume})
 
 @login_required
 def edit_profile(request, username):
