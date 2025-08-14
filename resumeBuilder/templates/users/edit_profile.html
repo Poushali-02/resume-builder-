@@ -40,6 +40,14 @@
                   placeholder="Write something about yourself...">{{ profile.bio }}</textarea>
       </div>
 
+      <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-1">Resume Visibility</label>
+        <select name="resumePublic" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+          <option value="True">Public</option>
+          <option value="False">Private</option>
+        </select>
+      </div>
+
       <!-- Save Button -->
       <div class="flex justify-center">
         <button type="submit"

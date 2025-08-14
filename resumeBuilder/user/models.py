@@ -10,6 +10,7 @@ class Profile(models.Model):
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     resumeCount = models.PositiveIntegerField(default=0)
     portfolio_link = models.URLField(blank=True, null=True)
+    resumePublic = models.BooleanField(default=False)
     
     def __str__(self):
         return self.user.username

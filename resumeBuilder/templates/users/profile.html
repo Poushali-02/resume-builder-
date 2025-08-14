@@ -51,7 +51,7 @@
         <p class="text-sm text-gray-600">Uploaded Resumes Count: <strong>{{ profile.resumeCount }}</strong></p>
         <p class="text-sm text-gray-600">
           Resumes  :
-          {% if resume.resumePublic %}
+          {% if profile.resumePublic %}
             <p class="mb-2">📄 
             <a  target="_blank" class="text-green-600 hover:underline" href="{{ profile.resume.url }}">
               View Resume
