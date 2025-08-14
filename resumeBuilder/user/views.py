@@ -82,8 +82,12 @@ def home(request):
 @login_required
 def profile(request):
     profile = Profile.objects.get(user=request.user)
-    resume = Resume.objects.get(user=request.user)
-    return render(request, 'users/profile.html', {'profile': profile, 'resume': resume})
+    # Get all resumes for the current user
+    user_resumes = Resume.objects.filter(user=request.user).order_by('-updated_at')
+    return render(request, 'users/profile.html', {
+        'profile': profile, 
+        'user_resumes': user_resumes
+    })
 
 @login_required
 def edit_profile(request, username):

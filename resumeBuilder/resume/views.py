@@ -168,18 +168,40 @@ def create(request):
                 )
         
         # Process projects
-        project_titles = request.POST.getlist('project_title[]')
+        project_names = request.POST.getlist('project_name[]')
         project_descriptions = request.POST.getlist('project_description[]')
-        project_links = request.POST.getlist('project_link[]')
+        project_technologies = request.POST.getlist('project_technologies[]')
+        project_start_dates = request.POST.getlist('project_start_date[]')
+        project_end_dates = request.POST.getlist('project_end_date[]')
+        project_urls = request.POST.getlist('project_url[]')
         
-        for i in range(len(project_titles)):
-            if project_titles[i].strip():
-                Project.objects.create(
-                    resume=resume,
-                    title=project_titles[i],
-                    description=project_descriptions[i] if i < len(project_descriptions) else "",
-                    link=project_links[i] if i < len(project_links) and project_links[i].strip() else None
-                )
+        for i in range(len(project_names)):
+            if project_names[i].strip():
+                try:
+                    # Parse dates from month input (YYYY-MM format)
+                    start_date = datetime.strptime(project_start_dates[i], '%Y-%m') if i < len(project_start_dates) and project_start_dates[i] else None
+                    
+                    # Check if this is marked as current project
+                    is_current = f"current_project_{i}" in request.POST
+                    
+                    # Set end date based on current status
+                    if is_current:
+                        end_date = None
+                    else:
+                        end_date = datetime.strptime(project_end_dates[i], '%Y-%m') if i < len(project_end_dates) and project_end_dates[i] else None
+                    
+                    Project.objects.create(
+                        resume=resume,
+                        title=project_names[i],
+                        description=project_descriptions[i] if i < len(project_descriptions) else "",
+                        technologies=project_technologies[i] if i < len(project_technologies) else "",
+                        start_date=start_date,
+                        end_date=end_date,
+                        is_current=is_current,
+                        link=project_urls[i] if i < len(project_urls) and project_urls[i].strip() else None
+                    )
+                except ValueError as e:
+                    print(f"Date parsing error for project: {e}")
         
         profile = Profile.objects.get(user=request.user)
         profile.resumeCount += 1
@@ -353,18 +375,40 @@ def edit_resume(request, resume_id):
                 )
 
         # --- Projects ---
-        project_titles = request.POST.getlist('project_title[]')
+        project_names = request.POST.getlist('project_name[]')
         project_descriptions = request.POST.getlist('project_description[]')
-        project_links = request.POST.getlist('project_link[]')
+        project_technologies = request.POST.getlist('project_technologies[]')
+        project_start_dates = request.POST.getlist('project_start_date[]')
+        project_end_dates = request.POST.getlist('project_end_date[]')
+        project_urls = request.POST.getlist('project_url[]')
         
-        for i in range(len(project_titles)):
-            if project_titles[i].strip():
-                Project.objects.create(
-                    resume=resume,
-                    title=project_titles[i],
-                    description=project_descriptions[i] if i < len(project_descriptions) else "",
-                    link=project_links[i] if i < len(project_links) and project_links[i].strip() else None
-                )
+        for i in range(len(project_names)):
+            if project_names[i].strip():
+                try:
+                    # Parse dates from month input (YYYY-MM format)
+                    start_date = datetime.strptime(project_start_dates[i], '%Y-%m') if i < len(project_start_dates) and project_start_dates[i] else None
+                    
+                    # Check if this is marked as current project
+                    is_current = f"current_project_{i}" in request.POST
+                    
+                    # Set end date based on current status
+                    if is_current:
+                        end_date = None
+                    else:
+                        end_date = datetime.strptime(project_end_dates[i], '%Y-%m') if i < len(project_end_dates) and project_end_dates[i] else None
+                    
+                    Project.objects.create(
+                        resume=resume,
+                        title=project_names[i],
+                        description=project_descriptions[i] if i < len(project_descriptions) else "",
+                        technologies=project_technologies[i] if i < len(project_technologies) else "",
+                        start_date=start_date,
+                        end_date=end_date,
+                        is_current=is_current,
+                        link=project_urls[i] if i < len(project_urls) and project_urls[i].strip() else None
+                    )
+                except ValueError as e:
+                    print(f"Date parsing error for project: {e}")
 
         return redirect('see_resume', resume_id=resume.id)
 
