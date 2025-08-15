@@ -72,7 +72,7 @@ class ProgrammingSkill(models.Model):
         ('Expert', 'Expert'),
     )
     resume = models.ForeignKey(Resume, related_name='programming_skills', on_delete=models.CASCADE)
-    skill_name = models.CharField(max_length=100)
+    skill= models.CharField(max_length=100)
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     
     def __str__(self):

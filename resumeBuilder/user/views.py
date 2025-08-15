@@ -58,7 +58,8 @@ def home(request):
             
             # Get top skills (limited to 3)
             tech_skills = resume.programming_skills.all()[:3]
-            resume.top_skills = tech_skills
+            other_skills = resume.other_skills.all()[:3]
+            resume.top_skills = tech_skills if tech_skills else other_skills
             
             # Get most recent work experience
             latest_experience = resume.experiences.all().order_by('-start_date').first()

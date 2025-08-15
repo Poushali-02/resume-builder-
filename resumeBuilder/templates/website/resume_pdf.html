@@ -527,19 +527,34 @@
                 <!-- Projects -->
                 <div class="section">
                     <h2>Projects</h2>
-                    {% for project in resume.projects.all %}
-                        <div class="item">
-                            <div class="item-title">{{ project.title }}</div>
-                            {% if project.description %}
-                                <div class="item-description">{{ project.description|truncatewords:30|linebreaks }}</div>
-                            {% endif %}
-                            {% if project.link %}
-                                <a href="{{ project.link }}" class="project-link">View Project</a>
-                            {% endif %}
-                        </div>
-                    {% empty %}
-                        <div class="empty-state">🚀 No projects listed yet</div>
-                    {% endfor %}
+                    {% if resume.projects.all %}
+                        {% for project in resume.projects.all %}
+                            <div class="item">
+                                <div class="item-title">{{ project.title }}</div>
+                                {% if project.technologies %}
+                                    <div class="item-company" style="color: #3952ff; font-weight: 600;">{{ project.technologies }}</div>
+                                {% endif %}
+                                {% if project.description %}
+                                    <div class="item-description">{{ project.description|truncatewords:30|linebreaks }}</div>
+                                {% endif %}
+                                {% if project.link %}
+                                    <a href="{{ project.link }}" class="project-link">View Project</a>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Enhanced display for non-project professionals -->
+                        {% if not resume.programming_skills.all %}
+                            <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                                <div style="font-size: 24px; color: #64748b; margin-bottom: 8px;">💼</div>
+                                <div style="color: #475569; font-size: 10px; font-style: italic;">
+                                    Professional experience showcased above
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">🚀 No projects listed yet</div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
 
@@ -568,39 +583,64 @@
                 <div class="section">
                     <h2>Skills</h2>
                     
-                    <!-- Technical Skills -->
-                    <div class="skills-section">
-                        <div class="skills-title">💻 Technical Skills</div>
-                        {% for skill in resume.programming_skills.all %}
-                            <div class="skill-item">
-                                <span class="skill-name">{{ skill.skill_name }}</span>
-                                <span class="skill-level">{{ skill.level }}</span>
-                            </div>
-                        {% empty %}
-                            <div class="empty-state">No programming skills listed</div>
-                        {% endfor %}
-                    </div>
+                    {% if resume.programming_skills.all %}
+                        <!-- Tech Professional Layout -->
+                        <!-- Technical Skills -->
+                        <div class="skills-section">
+                            <div class="skills-title">💻 Technical Skills</div>
+                            {% for skill in resume.programming_skills.all %}
+                                <div class="skill-item">
+                                    <span class="skill-name">{{ skill.skill_name }}</span>
+                                    <span class="skill-level">{{ skill.level }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
 
-                    <!-- Language Skills -->
-                    <div class="skills-section">
-                        <div class="skills-title">🌍 Languages</div>
-                        {% for lang in resume.language_skills.all %}
-                            <div class="skill-item">
-                                <span class="skill-name">{{ lang.language }}</span>
-                                <span class="skill-level language">{{ lang.level }}</span>
+                        <!-- Language Skills (Secondary) -->
+                        {% if resume.language_skills.all %}
+                        <div class="skills-section">
+                            <div class="skills-title">🌍 Languages</div>
+                            {% for lang in resume.language_skills.all %}
+                                <div class="skill-item">
+                                    <span class="skill-name">{{ lang.language }}</span>
+                                    <span class="skill-level language">{{ lang.level }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <!-- Non-Tech Professional Layout: Enhanced Language Display -->
+                        {% if resume.language_skills.all %}
+                            <div class="skills-section" style="margin-bottom: 20px;">
+                                <div class="skills-title" style="font-size: 14px; margin-bottom: 12px;">🌍 Language Proficiency</div>
+                                {% for lang in resume.language_skills.all %}
+                                    <div style="margin-bottom: 12px; padding: 8px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 6px; border: 1px solid #bbf7d0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                            <span style="font-weight: 600; color: #166534; font-size: 11px;">{{ lang.language }}</span>
+                                            <span style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 2px 6px; border-radius: 8px; font-size: 8px; font-weight: 600;">{{ lang.level }}</span>
+                                        </div>
+                                        <div style="width: 100%; height: 4px; background: #dcfce7; border-radius: 2px; overflow: hidden;">
+                                            <div style="height: 100%; background: linear-gradient(90deg, #059669, #10b981); width: {% if lang.level == 'Basic' %}25%{% elif lang.level == 'Intermediate' %}50%{% elif lang.level == 'Fluent' %}75%{% else %}100%{% endif %}; border-radius: 2px;"></div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% empty %}
-                            <div class="empty-state">No languages listed</div>
-                        {% endfor %}
-                    </div>
+                        {% else %}
+                            <!-- Fallback for no languages -->
+                            <div style="text-align: center; padding: 16px; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                                <div style="font-size: 20px; color: #64748b; margin-bottom: 6px;">🎯</div>
+                                <div style="color: #475569; font-size: 9px; font-style: italic;">Core competencies demonstrated in experience</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
 
-                    <!-- Additional Skills -->
+                    <!-- Additional Skills (Always shown if available) -->
                     {% if resume.other_skills.all %}
                         <div class="skills-section">
-                            <div class="skills-title">⭐ Additional Skills</div>
+                            <div class="skills-title">⭐ {% if not resume.programming_skills.all %}Professional {% endif %}Skills</div>
                             <div class="skill-tags">
                                 {% for skill in resume.other_skills.all %}
-                                    <span class="skill-tag">{{ skill.skill }}</span>
+                                    <span class="skill-tag" {% if not resume.programming_skills.all %}style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e40af; border: 1px solid #bfdbfe;"{% endif %}>{{ skill.skill }}</span>
                                 {% endfor %}
                             </div>
                         </div>
