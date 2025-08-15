@@ -8,10 +8,10 @@
     <div class="container mx-auto px-4">
         <div class="flex flex-col lg:flex-row items-center">
             <div class="flex items-center space-x-6 mb-8 lg:mb-0">
-                {% if profile.pfp %}
+                {% if profile.pfp and profile.pfp.url %}
                 <img src="{{ profile.pfp.url }}" alt="{{ profile.user.username }}" class="h-32 w-32 rounded-full border-4 border-white shadow-xl object-cover">
                 {% else %}
-                <div class="h-32 w-32 bg-white bg-opacity-20 text-white flex items-center justify-center rounded-full text-4xl font-bold border-4 border-white shadow-xl">
+                <div class="h-32 w-32 bg-white-50 bg-opacity-25 text-blue flex items-center justify-center rounded-full text-4xl font-bold border-4 border-white shadow-xl">
                     {{ profile.user.username|slice:":1"|upper }}
                 </div>
                 {% endif %}
@@ -20,7 +20,7 @@
                     <h1 class="text-4xl font-bold mb-2">{{ profile.name|default:profile.user.username }}</h1>
                     <p class="text-xl text-blue-100 mb-2">{{ profile.user.email }}</p>
                     <div class="flex items-center space-x-4 text-sm">
-                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full">
+                        <span class="bg-white-50 bg-opacity-25 px-3 py-1 rounded-full">
                             📄 {{ profile.resumeCount }} Resume{{ profile.resumeCount|pluralize }}
                         </span>
                         {% if profile.resumePublic %}
@@ -36,7 +36,7 @@
                 </div>
             </div>
             
-            <div class="lg:ml-auto flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-3">
+            <div class="lg:ml-auto flex flex-col lg:flex-row space-y-1 lg:space-y-0 lg:space-x-3">
                 <a href="{% url 'edit_profile' profile.user.username %}" 
                    class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg text-center">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-4">
                                 <div class="flex items-center">
-                                    {% if resume.image %}
+                                    {% if resume.image and resume.image.url %}
                                     <img src="{{ resume.image.url }}" alt="{{ resume.full_name }}" class="w-12 h-12 rounded-full object-cover mr-3">
                                     {% else %}
                                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
@@ -155,7 +155,7 @@
                                     </div>
                                     {% endif %}
                                     <div>
-                                        <h3 class="text-lg font-bold text-blue-600">{{ resume.full_name }}</h3>
+                                        <h3 class="text-xl font-bold text-blue-600">{{ resume.full_name }}</h3>
                                         <p class="text-sm text-gray-600">{{ resume.occupation|default:"Professional" }}</p>
                                     </div>
                                 </div>
@@ -174,7 +174,7 @@
                                 <p class="text-xs text-gray-500 uppercase font-semibold mb-2">Skills</p>
                                 <div class="flex flex-wrap gap-1">
                                     {% for skill in resume.programming_skills.all|slice:":3" %}
-                                    <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">{{ skill.skill_name }}</span>
+                                    <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">{{ skill.skill }}</span>
                                     {% endfor %}
                                     {% if resume.programming_skills.all|length > 3 %}
                                     <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">+{{ resume.programming_skills.all|length|add:"-3" }} more</span>
@@ -186,23 +186,38 @@
                             <!-- Action Buttons -->
                             <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
                                 <div class="flex space-x-3">
+                                    {% if resume.user == request.user %}
                                     <a href="{% url 'edit_resume' resume.id %}" 
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         Edit
                                     </a>
                                     <span class="text-gray-300">|</span>
+                                    {% endif %}
+                                    {% if resume.user == request.user or resume.resumePublic %}
                                     <a href="{% url 'see_resume' resume.id %}" 
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         View
                                     </a>
+                                    {% else %}
+                                    <span class="text-gray-400 text-sm">Private Resume</span>
+                                    {% endif %}
                                 </div>
-                                <a href="{% url 'download_resume' resume.id %}" 
-                                   class="bg-blue-50 text-blue-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    PDF
-                                </a>
+                                <div class="flex items-center space-x-2">
+                                    {% if resume.resumePublic %}
+                                    <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">Public</span>
+                                    {% else %}
+                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Private</span>
+                                    {% endif %}
+                                    {% if resume.user == request.user %}
+                                    <a href="{% url 'download_resume' resume.id %}" 
+                                       class="bg-blue-50 text-blue-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        PDF
+                                    </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>

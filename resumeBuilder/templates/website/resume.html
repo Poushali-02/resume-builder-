@@ -7,6 +7,7 @@
 {% if resume %}
 <div class="min-h-screen bg-gray-50 py-12">
   <!-- Resume Header with Actions -->
+  {% if resume.user == request.user %}
   <div class="max-w-4xl mx-auto mb-8 px-4">
     <div class="flex flex-col md:flex-row justify-between items-center">
       <div>
@@ -29,7 +30,12 @@
       </div>
     </div>
   </div>
-  
+  {% endif %}
+  <!-- show previous page link -->
+  <div class="max-w-4xl mx-auto mt-4">
+    <a href="{% url 'home' %}" class="text-blue-600 hover:underline">← Back</a>
+  </div>
+
   <!-- Resume Document -->
   <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200">
     
@@ -393,7 +399,7 @@
         <!-- Quick Links -->
         <section class="mt-8">
           <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-          
+          {% if resume.user == request.user %}
           <div class="space-y-3">
             <a href="{% url 'download_resume' resume.id %}" class="flex items-center bg-blue-100 text-blue-700 hover:bg-blue-200 p-3 rounded-lg transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -401,20 +407,23 @@
               </svg>
               <span>Download PDF</span>
             </a>
-            
+          {% endif %}
+          {% if resume.user == request.user %}
             <a href="{% url 'edit_resume' resume.id %}" class="flex items-center bg-gray-100 text-gray-700 hover:bg-gray-200 p-3 rounded-lg transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <span>Edit Resume</span>
             </a>
-            
+          {% endif %}
+          {% if resume.user == request.user %}
             <a href="{% url 'create' %}" class="flex items-center bg-gray-100 text-gray-700 hover:bg-gray-200 p-3 rounded-lg transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Create New Resume</span>
             </a>
+          {% endif %}
           </div>
         </section>
       </div>

@@ -4,9 +4,10 @@ from .models import (
     ProgrammingSkill, LanguageSkill, OtherSkill, Project
 )
 
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from user.models import Profile
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from datetime import datetime
 from django.template.loader import get_template
 from django.http import HttpResponse
@@ -15,6 +16,29 @@ from weasyprint import HTML, CSS
 import tempfile
 from django.conf import settings
 import os
+from functools import wraps
+
+# Custom decorator for resume ownership validation
+def resume_owner_required(view_func):
+    """
+    Decorator to ensure only the resume owner can access the view
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, resume_id, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        resume = get_object_or_404(Resume, id=resume_id)
+        
+        # Check if user owns this resume
+        if resume.user != request.user:
+            # Determine the action being attempted based on the view function name
+            action = view_func.__name__.replace('_', ' ').title()
+            messages.error(request, f"🚫 You don't have permission to {action.lower()} this resume.")
+            return redirect('profile')
+            
+        return view_func(request, resume_id, *args, **kwargs)
+    return _wrapped_view
 
 # Create your views here.
 def create(request):
@@ -207,15 +231,19 @@ def create(request):
         profile.resumeCount += 1
         profile.save()
         
+        messages.success(request, f"🎉 Resume '{resume.full_name}' created successfully!")
         return redirect('see_resume', resume_id=resume.id)
     return render(request, 'website/createResume.html')
 
+
 def see_resume(request, resume_id):
     
-    if not request.user.is_authenticated:
-        return redirect('login')
     try:
         resume = Resume.objects.get(id=resume_id)
+        
+        # Add success message for viewing public resumes
+        if resume.user != request.user and getattr(resume, 'resumePublic', False):
+            messages.info(request, f"👀 You're viewing {resume.user.username}'s public resume: {resume.full_name}")
         
         # Get related resumes (other resumes by the same user or with similar occupation)
         if resume.user:
@@ -243,12 +271,11 @@ def see_resume(request, resume_id):
     except Resume.DoesNotExist:
         return render(request, 'website/resume.html', {'resume': None})
 
+@resume_owner_required
 def edit_resume(request, resume_id):
     
-    if not request.user.is_authenticated:
-        return redirect('login')
     resume = get_object_or_404(Resume, id=resume_id)
-
+    
     if request.method == 'POST':
         # Update basic info
         resume.full_name = request.POST.get('full_name')
@@ -410,6 +437,7 @@ def edit_resume(request, resume_id):
                 except ValueError as e:
                     print(f"Date parsing error for project: {e}")
 
+        messages.success(request, "✅ Resume updated successfully!")
         return redirect('see_resume', resume_id=resume.id)
 
     context = {
@@ -427,39 +455,43 @@ def edit_resume(request, resume_id):
 
     return render(request, 'website/editResume.html', context)
 
+@resume_owner_required
 def download_resume(request, resume_id):
-    
-    if not request.user.is_authenticated:
-        return redirect('login')
     resume = get_object_or_404(Resume, id=resume_id)
+    
+    # Select template based on content size
+
     context = {
         'resume': resume,
-        'hide_nav': True,
+        'contacts': ContactDetail.objects.filter(resume=resume),
+        'experiences': WorkExperience.objects.filter(resume=resume),
+        'educations': Education.objects.filter(resume=resume),
+        'programming_skills': ProgrammingSkill.objects.filter(resume=resume),
+        'languages': LanguageSkill.objects.filter(resume=resume),
+        'other_skills': OtherSkill.objects.filter(resume=resume),
+        'projects': Project.objects.filter(resume=resume),
     }
-    html_string = render_to_string('website/resume_pdf.html', context)
 
-    # Create the PDF in memory
+    html_string = render_to_string('website/card.html', context)
+
+    # PDF style
     pdf_bytes = HTML(
         string=html_string,
         base_url=request.build_absolute_uri('/')
     ).write_pdf(
-        stylesheets=[CSS(string='@page { size: A4; margin: 1cm } body { font-family: sans-serif; }')]
+        stylesheets=[
+            CSS(string='@page { size: A4; } body { font-family: sans-serif; }')
+        ]
     )
 
-    # Define where to save (inside MEDIA_ROOT/resumes/)
     filename = f"{resume.full_name.replace(' ', '_')}_resume.pdf"
     save_path = os.path.join(settings.MEDIA_ROOT, 'resumes', filename)
-
-    # Make sure directory exists
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-    # Save PDF to file
     with open(save_path, 'wb') as f:
         f.write(pdf_bytes)
 
-    # Store relative path in DB so we can use resume.pdf_file.url later
     resume.pdf_file.name = f"resumes/{filename}"
     resume.save(update_fields=['pdf_file'])
 
-    # Return saved PDF file as download
     return FileResponse(open(save_path, 'rb'), as_attachment=True, filename=filename)
