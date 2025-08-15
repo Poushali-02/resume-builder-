@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import (
     Resume, Education, WorkExperience, ContactDetail, 
-    ProgrammingSkill, LanguageSkill, OtherSkill, Project, Certificate
+    ProgrammingSkill, LanguageSkill, OtherSkill, Project
 )
 
 from django.http import FileResponse, Http404
@@ -226,44 +226,7 @@ def create(request):
                     )
                 except ValueError as e:
                     print(f"Date parsing error for project: {e}")
-        
-        # Certificate section
-        
-        certificate_names = request.POST.getlist('certificate_name[]')
-        certificate_issuing_organizations = request.POST.getlist('certificate_issuing_organization[]')
-        certificate_issue_dates = request.POST.getlist('certificate_issue_date[]')
-        certificate_certified_fors = request.POST.getlist('certificate_certified_for[]')
-        certificate_files = request.FILES.getlist('certificate_file[]')
 
-        for i in range(len(certificate_names)):
-            if certificate_names[i].strip():
-                Certificate.objects.create(
-                    resume=resume,
-                    name=certificate_names[i],
-                    issuing_organization=certificate_issuing_organizations[i] if i < len(certificate_issuing_organizations) else "",
-                    issue_date=certificate_issue_dates[i] if i < len(certificate_issue_dates) else None,
-                    certified_for=certificate_certified_fors[i] if i < len(certificate_certified_fors) else "",
-                    certificate=certificate_files[i] if i < len(certificate_files) else None
-                )
-
-        
-        for i in range(len(project_names)):
-            if project_names[i].strip():
-                try:
-                    # Parse dates from month input (YYYY-MM format)
-                    issue_date = datetime.strptime(certificate_issue_dates[i], '%Y-%m') if i < len(certificate_issue_dates) and certificate_issue_dates[i] else None
-                    
-                    Certificate.objects.create(
-                        resume=resume,
-                        name=certificate_names[i],
-                        issuing_organization=certificate_issuing_organizations[i] if i < len(certificate_issuing_organizations) else "",
-                        issue_date=issue_date,
-                        certified_for=certificate_certified_fors[i] if i < len(certificate_certified_fors) else "",
-                        certificate=certificate_files[i] if i < len(certificate_files) else None
-                    )
-                except ValueError as e:
-                    print(f"Date parsing error for Certificate: {e}")
-        
         profile = Profile.objects.get(user=request.user)
         profile.resumeCount += 1
         profile.save()
@@ -336,7 +299,6 @@ def edit_resume(request, resume_id):
         LanguageSkill.objects.filter(resume=resume).delete()
         OtherSkill.objects.filter(resume=resume).delete()
         Project.objects.filter(resume=resume).delete()
-        Certificate.objects.filter(resume=resume).delete()
 
         # --- Contacts ---
         contact_types = request.POST.getlist('contact_type[]')
@@ -474,43 +436,6 @@ def edit_resume(request, resume_id):
                 except ValueError as e:
                     print(f"Date parsing error for project: {e}")
 
-        # Processing Certificates
-
-        certificate_names = request.POST.getlist('certificate_name[]')
-        certificate_issuing_organizations = request.POST.getlist('certificate_issuing_organization[]')
-        certificate_issue_dates = request.POST.getlist('certificate_issue_date[]')
-        certificate_certified_fors = request.POST.getlist('certificate_certified_for[]')
-        certificate_files = request.FILES.getlist('certificate_file[]')
-
-        for i in range(len(certificate_names)):
-            if certificate_names[i].strip():
-                Certificate.objects.create(
-                    resume=resume,
-                    name=certificate_names[i],
-                    issuing_organization=certificate_issuing_organizations[i] if i < len(certificate_issuing_organizations) else "",
-                    issue_date=certificate_issue_dates[i] if i < len(certificate_issue_dates) else None,
-                    certified_for=certificate_certified_fors[i] if i < len(certificate_certified_fors) else "",
-                    certificate=certificate_files[i] if i < len(certificate_files) else None
-                )
-
-        
-        for i in range(len(project_names)):
-            if project_names[i].strip():
-                try:
-                    # Parse dates from month input (YYYY-MM format)
-                    issue_date = datetime.strptime(certificate_issue_dates[i], '%Y-%m') if i < len(certificate_issue_dates) and certificate_issue_dates[i] else None
-                    
-                    Certificate.objects.create(
-                        resume=resume,
-                        name=certificate_names[i],
-                        issuing_organization=certificate_issuing_organizations[i] if i < len(certificate_issuing_organizations) else "",
-                        issue_date=issue_date,
-                        certified_for=certificate_certified_fors[i] if i < len(certificate_certified_fors) else "",
-                        certificate=certificate_files[i] if i < len(certificate_files) else None
-                    )
-                except ValueError as e:
-                    print(f"Date parsing error for Certificate: {e}")
-        
         messages.success(request, "✅ Resume updated successfully!")
         return redirect('see_resume', resume_id=resume.id)
 
@@ -525,7 +450,6 @@ def edit_resume(request, resume_id):
         'programming_level_choices': ProgrammingSkill.LEVEL_CHOICES,
         'language_level_choices': LanguageSkill.LEVEL_CHOICES,
         'projects': Project.objects.filter(resume=resume),
-        'certificates': Certificate.objects.filter(resume=resume),
     }
 
     return render(request, 'website/editResume.html', context)
@@ -545,7 +469,6 @@ def download_resume(request, resume_id):
         'languages': LanguageSkill.objects.filter(resume=resume),
         'other_skills': OtherSkill.objects.filter(resume=resume),
         'projects': Project.objects.filter(resume=resume),
-        'certificates': Certificate.objects.filter(resume=resume)
     }
 
     html_string = render_to_string('website/card.html', context)
