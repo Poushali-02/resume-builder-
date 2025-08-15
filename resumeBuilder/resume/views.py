@@ -35,7 +35,7 @@ def resume_owner_required(view_func):
             # Determine the action being attempted based on the view function name
             action = view_func.__name__.replace('_', ' ').title()
             messages.error(request, f"🚫 You don't have permission to {action.lower()} this resume.")
-            return redirect('profile')
+            return redirect('home')
             
         return view_func(request, resume_id, *args, **kwargs)
     return _wrapped_view
