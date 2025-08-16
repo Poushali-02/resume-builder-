@@ -76,7 +76,7 @@ class ProgrammingSkill(models.Model):
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     
     def __str__(self):
-        return f"{self.skill_name} ({self.level})"
+        return f"{self.skill} ({self.level})"
     
 class LanguageSkill(models.Model):
     LEVEL_CHOICES = (
