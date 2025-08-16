@@ -112,3 +112,14 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+class Certification(models.Model):
+    resume = models.ForeignKey(Resume, related_name='certifications', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    authority = models.CharField(max_length=255, blank=True, null=True)
+    certified_for = models.CharField(max_length=255, blank=True, null=True)  # e.g., "Python Programming"
+    date = models.DateField(blank=True, null=True)
+    files = models.FileField(upload_to='certificates/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} by {self.authority}"
