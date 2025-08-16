@@ -38,7 +38,13 @@
             <a href="#" class="text-blue-500 hover:text-blue-700 font-medium transition">Contact</a>
         </nav>
         {% if user.is_authenticated %}
-        <a class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition" href="{% url 'profile' %}">{{ user.username }}</a>
+        <a class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition" href="{% url 'profile' %}">
+            {% if user.profile.name %}
+                {{ user.profile.get_first_name }}
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+        </a>
         {% else %}
         <a class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition" href="{% url 'login' %}">Login</a>
         {% endif %}

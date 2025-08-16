@@ -12,5 +12,10 @@ class Profile(models.Model):
     portfolio_link = models.URLField(blank=True, null=True)
     resumePublic = models.BooleanField(default=False)
     
+    def get_first_name(self):
+        if self.name:
+            return self.name.split(' ')[0]
+        return ""
+    
     def __str__(self):
         return self.user.username
