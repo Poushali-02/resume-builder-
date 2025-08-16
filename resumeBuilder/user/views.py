@@ -5,8 +5,50 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+import re
 
 # Create your views here.
+def check_username(request):
+    """AJAX endpoint to check username availability"""
+    if request.method == 'GET':
+        username = request.GET.get('username', '').strip()
+        
+        # Validate username format (alphanumeric + @, /, ., _)
+        if not username:
+            return JsonResponse({
+                'available': False,
+                'message': 'Username cannot be empty'
+            })
+        
+        # Check if username contains only allowed characters
+        if not re.match(r'^[a-zA-Z0-9@._]+$', username):
+            return JsonResponse({
+                'available': False,
+                'message': 'Username can only contain letters, numbers, @, ., and _'
+            })
+        
+        # Check minimum length
+        if len(username) < 4:
+            return JsonResponse({
+                'available': False,
+                'message': 'Username must be at least 4 characters long'
+            })
+        
+        # Check if username already exists
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                'available': False,
+                'message': 'This username is already taken'
+            })
+        
+        return JsonResponse({
+            'available': True,
+            'message': 'Username is available'
+        })
+    
+    return JsonResponse({'available': False, 'message': 'Invalid request'})
+
 def signup(request):
     if request.user.is_authenticated:
             return redirect('home')
