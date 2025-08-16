@@ -7,3 +7,4 @@ media/
 myenv/
 node_modules/
 watch-css.bat
+.env
