@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}Edit Resume - Resume Builder{% endblock %}
 {% block content %}
 
@@ -98,7 +98,7 @@
         <div id="progSkillFields" class="space-y-2">
           {% for ps in programming_skills %}
           <div class="flex gap-2">
-            <input type="text" name="programming_skill[]" value="{{ ps.skill_name }}" placeholder="Skill" class="border rounded p-2 w-1/2">
+            <input type="text" name="programming_skill[]" value="{{ ps.skill }}" placeholder="Skill" class="border rounded p-2 w-1/2">
             <select name="programming_level[]" class="border rounded p-2 w-1/2">
                 {% for code, label in programming_level_choices %}
                 <option value="{{ code }}" {% if ps.level == code %}selected{% endif %}>{{ label }}</option>
@@ -243,6 +243,115 @@
         </button>
       </section>
 
+      <!-- CERTIFICATIONS -->
+       <section>
+        <h3 class="text-xl font-semibold text-green-600 border-b pb-2 mb-4">Certifications</h3>
+        <div id="certificateFields" class="space-y-6">
+            {% for certificate in certificates %}
+            <div class="certificate-entry border border-gray-200 p-6 rounded-lg bg-gray-50 space-y-4">
+              <div class="flex justify-between items-start mb-4">
+                <h4 class="font-semibold text-gray-800">Certificate</h4>
+                <button type="button" onclick="removeCertificate(this)" class="text-red-500 hover:text-red-700 px-2 py-1 text-sm">
+                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+              
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block mb-1 text-gray-700 font-medium">Certificate Name</label>
+                  <input type="text" name="certificate_name[]" value="{{ certificate.name }}" placeholder="AWS Certified Developer" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div>
+                  <label class="block mb-1 text-gray-700 font-medium">Certificate Authority</label>
+                  <input type="text" name="certificate_authority[]" value="{{ certificate.authority }}" placeholder="Amazon Web Services" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                </div>
+              </div>
+              
+              <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block mb-1 text-gray-700 font-medium">Dated at</label>
+                  <input type="date" name="certificate_date_display[]" value="{% if certificate.date %}{{ certificate.date|date:'Y-m-d' }}{% endif %}" class="certificate-date-input w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <input type="hidden" name="certificate_date[]" value="{% if certificate.date %}{{ certificate.date|date:'d-m-Y' }}{% endif %}" class="certificate-date-hidden">
+                </div>
+              </div>
+              
+              <div>
+                <label class="block mb-1 text-gray-700 font-medium">Certificate File</label>
+                <input type="file" name="certificate_file[]" accept=".pdf,.png,.jpg,.jpeg" class="certificate-file-input w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                {% if certificate.files %}
+                <div class="mt-2 text-sm text-gray-600">
+                  Current file: <a href="{{ certificate.files.url }}" target="_blank" class="text-blue-600 hover:underline">{{ certificate.files.name }}</a>
+                </div>
+                {% endif %}
+                <div class="mt-2">
+                  <span class="certificate-file-name text-sm text-gray-600"></span>
+                  <button type="button" class="remove-certificate-file text-red-500 text-sm ml-2 hidden">Remove</button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block mb-1 text-gray-700 font-medium">Certified For</label>
+                <textarea name="certificate_certified_for[]" rows="3" placeholder="What was the certificate for?" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none">{{ certificate.certified_for }}</textarea>
+              </div>
+            </div>
+            {% empty %}
+            <div class="certificate-entry border border-gray-200 p-6 rounded-lg bg-gray-50 space-y-4">
+              <div class="flex justify-between items-start mb-4">
+                <h4 class="font-semibold text-gray-800">Certificate #1</h4>
+                <button type="button" onclick="removeCertificate(this)" class="text-red-500 hover:text-red-700 px-2 py-1 text-sm hidden">
+                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+              
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Certificate Name</label>
+                  <input type="text" name="certificate_name[]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="AWS Certified Developer">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Certificate Authority</label>
+                  <input type="text" name="certificate_authority[]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" placeholder="Amazon Web Services">
+                </div>
+              </div>
+              
+              <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Dated at</label>
+                  <input type="date" name="certificate_date_display[]" class="certificate-date-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                  <input type="hidden" name="certificate_date[]" class="certificate-date-hidden">
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Certificate File</label>
+                <input type="file" name="certificate_file[]" class="certificate-file-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" accept=".pdf,.png,.jpg,.jpeg">
+                <div class="mt-2">
+                  <span class="certificate-file-name text-sm text-gray-600"></span>
+                  <button type="button" class="remove-certificate-file text-red-500 text-sm ml-2 hidden">Remove</button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Certified For</label>
+                <textarea name="certificate_certified_for[]" rows="3" placeholder="What was the certificate for?" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition resize-none"></textarea>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" onclick="addCertificate()" class="mt-4 bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Add Another Certificate
+        </button>
+      </section>
+
       <!-- OTHER SKILLS -->
       <section>
         <h3 class="text-xl font-semibold text-green-600 border-b pb-2 mb-4">Other Skills</h3>
@@ -262,145 +371,6 @@
   </div>
 </div>
 
-<!-- JS for Dynamic Fields & Image Preview -->
-<script>
-  document.getElementById('imageInput').addEventListener('change', function(e){
-    const file = e.target.files[0];
-    if(file){
-      const reader = new FileReader();
-      reader.onload = (ev) => document.getElementById('imagePreview').src = ev.target.result;
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function addContact(){
-    document.getElementById('contactFields').insertAdjacentHTML('beforeend',
-      `<div class="flex gap-2">
-        <input type="text" name="contact_type[]" placeholder="Type" class="border rounded p-2 w-1/2">
-        <input type="text" name="contact_value[]" placeholder="Value" class="border rounded p-2 w-1/2">
-      </div>`);
-  }
-
-  function addExperience(){
-    document.getElementById('experienceFields').insertAdjacentHTML('beforeend',
-      `<div class="border p-4 rounded space-y-2">
-        <input type="text" name="job_title[]" placeholder="Job Title" class="border rounded p-2 w-full">
-        <input type="text" name="company[]" placeholder="Company" class="border rounded p-2 w-full">
-        <input type="text" name="job_location[]" placeholder="Location" class="border rounded p-2 w-full">
-        <div class="flex gap-2">
-          <input type="month" name="job_start_date[]" class="border rounded p-2 w-1/2">
-          <input type="month" name="job_end_date[]" class="border rounded p-2 w-1/2">
-        </div>
-        <label><input type="checkbox" name="current_job_NEW"> Currently Working</label>
-        <textarea name="job_description[]" rows="3" class="border rounded p-2 w-full" placeholder="Job Description"></textarea>
-      </div>`);
-  }
-
-  function addEducation(){
-    document.getElementById('educationFields').insertAdjacentHTML('beforeend',
-      `<div class="border p-4 rounded space-y-2">
-        <input type="text" name="degree[]" placeholder="Degree" class="border rounded p-2 w-full">
-        <input type="text" name="institution[]" placeholder="Institution" class="border rounded p-2 w-full">
-        <input type="text" name="edu_location[]" placeholder="Location" class="border rounded p-2 w-full">
-        <div class="flex gap-2">
-          <input type="month" name="edu_start_date[]" class="border rounded p-2 w-1/2">
-          <input type="month" name="edu_end_date[]" class="border rounded p-2 w-1/2">
-        </div>
-        <label><input type="checkbox" name="current_edu_NEW"> Currently Studying</label>
-        <textarea name="edu_description[]" rows="3" placeholder="Description" class="border rounded p-2 w-full"></textarea>
-      </div>`);
-  }
-
-  function addProgSkill(){
-    document.getElementById('progSkillFields').insertAdjacentHTML('beforeend',
-      `<div class="flex gap-2">
-        <input type="text" name="programming_skill[]" placeholder="Skill" class="border rounded p-2 w-1/2">
-        <select name="programming_level[]" class="border rounded p-2 w-1/2">
-                {% for code, label in programming_level_choices %}
-                <option value="{{ code }}" {% if ps.level == code %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-      </div>`);
-  }
-
-  function addLanguage(){
-    document.getElementById('langFields').insertAdjacentHTML('beforeend',
-      `<div class="flex gap-2">
-        <input type="text" name="language[]" placeholder="Language" class="border rounded p-2 w-1/2">
-        <select name="language_level[]" class="border rounded p-2 w-1/2">
-                {% for code, label in language_level_choices %}
-                <option value="{{ code }}" {% if lang.level == code %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-      </div>`);
-  }
-
-  function addOtherSkill(){
-    document.getElementById('otherSkillFields').insertAdjacentHTML('beforeend',
-      `<input type="text" name="other_skill[]" placeholder="Skill" class="border rounded p-2 w-full">`);
-  }
-
-  function addProject(){
-    const projectCount = document.querySelectorAll('.project-entry').length;
-    document.getElementById('projectFields').insertAdjacentHTML('beforeend',
-      `<div class="project-entry border border-gray-200 p-6 rounded-lg bg-gray-50 space-y-4">
-        <div class="flex justify-between items-start mb-4">
-          <h4 class="font-semibold text-gray-800">Project #${projectCount + 1}</h4>
-          <button type="button" onclick="removeProject(this)" class="text-red-500 hover:text-red-700 px-2 py-1 text-sm">
-            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-            Remove
-          </button>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-4">
-          <div>
-            <label class="block mb-1 text-gray-700 font-medium">Project Name</label>
-            <input type="text" name="project_name[]" placeholder="E-commerce Website" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-          </div>
-          <div>
-            <label class="block mb-1 text-gray-700 font-medium">Technologies Used</label>
-            <input type="text" name="project_technologies[]" placeholder="React, Node.js, MongoDB" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-          </div>
-        </div>
-        
-        <div class="grid md:grid-cols-3 gap-4">
-          <div>
-            <label class="block mb-1 text-gray-700 font-medium">Start Date</label>
-            <input type="month" name="project_start_date[]" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-          </div>
-          <div>
-            <label class="block mb-1 text-gray-700 font-medium">End Date</label>
-            <input type="month" name="project_end_date[]" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-          </div>
-          <div class="flex items-end">
-            <label class="flex items-center text-sm text-gray-700">
-              <input type="checkbox" name="current_project_${projectCount}" class="mr-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-              Ongoing project
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 text-gray-700 font-medium">Project URL (Optional)</label>
-          <input type="url" name="project_url[]" placeholder="https://github.com/username/project or https://project-demo.com" class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
-        </div>
-        
-        <div>
-          <label class="block mb-1 text-gray-700 font-medium">Project Description</label>
-          <textarea name="project_description[]" rows="4" placeholder="Describe your project, key features, challenges solved, and your role..." class="w-full border border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"></textarea>
-        </div>
-      </div>`);
-  }
-
-  function removeProject(button){
-    // Only remove if there's more than one project entry
-    const projectEntries = document.querySelectorAll('.project-entry');
-    if (projectEntries.length > 1) {
-      button.closest('.project-entry').remove();
-    }
-  }
-</script>
+<script src="{% static 'js/editResume.js' %}"></script>
 
 {% endblock %}

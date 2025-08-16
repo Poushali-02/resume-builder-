@@ -370,7 +370,7 @@
         <div class="header">
             <div class="header-content">
                 <div class="profile-section">
-                    {% if resume.image and resume.image.url %}
+                    {% if resume.image %}
                         <img src="{{ resume.image.url }}" alt="{{ resume.full_name }}" class="profile-image">
                     {% else %}
                         <div class="profile-placeholder">
@@ -558,6 +558,59 @@
                         <div class="projects-empty">
                             <span class="icon">💼</span>
                             Professional experience showcased above
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Certifications Section -->
+                <div class="section">
+                    <h2>Certifications</h2>
+                    {% if resume.certifications.all %}
+                        {% if resume.certifications.count <= 2 %}
+                            <!-- Show all certifications if 2 or fewer -->
+                            {% for cert in resume.certifications.all %}
+                                <div class="item">
+                                    <div class="item-title">{{ cert.name|default:"Certificate" }}</div>
+                                    {% if cert.authority %}
+                                        <div class="item-company">{{ cert.authority }}</div>
+                                    {% endif %}
+                                    {% if cert.date %}
+                                        <div class="item-date">{{ cert.date|date:"M Y" }}</div>
+                                    {% endif %}
+                                    {% if cert.certified_for %}
+                                        <div class="item-description">{{ cert.certified_for }}</div>
+                                    {% endif %}
+                                    {% if cert.files %}
+                                        <a class="item-description" href="{{ files.url }}" target="_blank">View Certificate</a>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Show only first 2 certifications if more than 2 -->
+                            {% for cert in resume.certifications.all %}
+                                {% if forloop.counter <= 2 %}
+                                    <div class="item">
+                                        <div class="item-title">{{ cert.name|default:"Certificate" }}</div>
+                                        {% if cert.authority %}
+                                            <div class="item-company">{{ cert.authority }}</div>
+                                        {% endif %}
+                                        {% if cert.date %}
+                                            <div class="item-date">{{ cert.date|date:"M Y" }}</div>
+                                        {% endif %}
+                                        {% if cert.certified_for %}
+                                            <div class="item-description">{{ cert.certified_for }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <!-- Show "and x more" message -->
+                            <div class="item">
+                                <div class="item-title"><a href="{% url 'see_resume' resume.id %}" target="_blank">... and {{ resume.certifications.count|add:"-2" }} more</a></div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="item">
+                            <div class="item-title">No certifications listed</div>
                         </div>
                     {% endif %}
                 </div>

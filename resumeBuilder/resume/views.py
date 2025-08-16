@@ -164,7 +164,7 @@ def create(request):
                 level = programming_levels[i] if i < len(programming_levels) else "Beginner"
                 ProgrammingSkill.objects.create(
                     resume=resume,
-                    skill_name=programming_skills[i],
+                    skill=programming_skills[i],
                     level=level
                 )
                 
@@ -236,8 +236,25 @@ def create(request):
         for i in range(len(certificate_names)):
             if certificate_names[i].strip():
                 try:
-                    # Parse dates from month input (YYYY-MM format)
-                    date = datetime.strptime(certificate_dates[i], '%Y-%m') if i < len(certificate_dates) and certificate_dates[i] else None
+                    # Parse dates - handle both DD-MM-YYYY and YYYY-MM-DD formats
+                    if i < len(certificate_dates) and certificate_dates[i]:
+                        date_str = certificate_dates[i].strip()
+                        try:
+                            # Try DD-MM-YYYY format first (from editResume)
+                            date = datetime.strptime(date_str, '%d-%m-%Y')
+                        except ValueError:
+                            try:
+                                # Try YYYY-MM-DD format (from createResume date input)
+                                date = datetime.strptime(date_str, '%Y-%m-%d')
+                            except ValueError:
+                                # Fallback to other common formats
+                                try:
+                                    date = datetime.strptime(date_str, '%m-%d-%Y')
+                                except ValueError:
+                                    print(f"Could not parse date: {date_str}")
+                                    date = None
+                    else:
+                        date = None
 
                     Certification.objects.create(
                         resume=resume,
@@ -249,6 +266,9 @@ def create(request):
                     )
                 except ValueError as e:
                     print(f"Date parsing error for Certificate: {e}")
+                    print(f"Received date string: '{certificate_dates[i] if i < len(certificate_dates) else 'None'}'")
+                    # Skip this certificate if date parsing fails
+                    continue
 
         profile = Profile.objects.get(user=request.user)
         profile.resumeCount += 1
@@ -322,6 +342,7 @@ def edit_resume(request, resume_id):
         LanguageSkill.objects.filter(resume=resume).delete()
         OtherSkill.objects.filter(resume=resume).delete()
         Project.objects.filter(resume=resume).delete()
+        Certification.objects.filter(resume=resume).delete()
 
         # --- Contacts ---
         contact_types = request.POST.getlist('contact_type[]')
@@ -399,7 +420,7 @@ def edit_resume(request, resume_id):
             if programming_skills[i].strip():
                 ProgrammingSkill.objects.create(
                     resume=resume,
-                    skill_name=programming_skills[i],
+                    skill=programming_skills[i],
                     level=programming_levels[i] if i < len(programming_levels) else "Beginner"
                 )
 
@@ -468,8 +489,25 @@ def edit_resume(request, resume_id):
         for i in range(len(certificate_names)):
             if certificate_names[i].strip():
                 try:
-                    # Parse dates from month input (YYYY-MM format)
-                    date = datetime.strptime(certificate_dates[i], '%Y-%m') if i < len(certificate_dates) and certificate_dates[i] else None
+                    # Parse dates - handle both DD-MM-YYYY and YYYY-MM-DD formats
+                    if i < len(certificate_dates) and certificate_dates[i]:
+                        date_str = certificate_dates[i].strip()
+                        try:
+                            # Try DD-MM-YYYY format first (from editResume)
+                            date = datetime.strptime(date_str, '%d-%m-%Y')
+                        except ValueError:
+                            try:
+                                # Try YYYY-MM-DD format (from createResume date input)
+                                date = datetime.strptime(date_str, '%Y-%m-%d')
+                            except ValueError:
+                                # Fallback to other common formats
+                                try:
+                                    date = datetime.strptime(date_str, '%m-%d-%Y')
+                                except ValueError:
+                                    print(f"Could not parse date: {date_str}")
+                                    date = None
+                    else:
+                        date = None
 
                     Certification.objects.create(
                         resume=resume,
@@ -481,6 +519,9 @@ def edit_resume(request, resume_id):
                     )
                 except ValueError as e:
                     print(f"Date parsing error for Certificate: {e}")
+                    print(f"Received date string: '{certificate_dates[i] if i < len(certificate_dates) else 'None'}'")
+                    # Skip this certificate if date parsing fails
+                    continue
         
         messages.success(request, "✅ Resume updated successfully!")
         return redirect('see_resume', resume_id=resume.id)
